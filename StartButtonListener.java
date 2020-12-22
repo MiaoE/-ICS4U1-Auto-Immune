@@ -2,6 +2,12 @@ import javax.swing.JFrame;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+/**
+ * [StartButtonListener.java]
+ *
+ * @author Eric Miao
+ * @version
+ */
 class StartButtonListener implements ActionListener {
     JFrame parentFrame;
 

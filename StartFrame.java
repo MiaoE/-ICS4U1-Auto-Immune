@@ -6,8 +6,9 @@ import java.awt.BorderLayout;
 /**
  * [StartFrame.java]
  *
- * @author Eric Miao
  * @author Ayden Gao
+ * @author Eric Miao
+ * @version
  */
 public class StartFrame extends JFrame {
     public StartFrame() {
