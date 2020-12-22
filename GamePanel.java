@@ -9,10 +9,10 @@ import java.awt.Color;
  * @version
  */
 public class GamePanel extends JPanel {
-    int[][] matrix;
+    GameObject[][] matrix;
     final int tileWidth;
 
-    public GamePanel(int[][] map, int tileWidth) {
+    public GamePanel(GameObject[][] map, int tileWidth) {
         matrix = map;
 
         this.tileWidth = tileWidth;
@@ -41,14 +41,16 @@ public class GamePanel extends JPanel {
     public void paintComponent(Graphics g) {
         for(int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[i].length; j++) {
-                if(matrix[i][j] < 6) {
+                if(matrix[i][j] == null) {
                     g.setColor(Color.GREEN);
-                } else if(matrix[i][j] == 7) {
-                    g.setColor(Color.GRAY);
-                } else if(matrix[i][j] == 8) {
+                } else if(matrix[i][j] instanceof Player) {
+                    g.setColor(Color.PINK);
+                } else if(matrix[i][j] instanceof Enemy) {
                     g.setColor(Color.RED);
-                } else {
+                } else if(matrix[i][j] instanceof Obstruction){//obstacle
                     g.setColor(Color.BLUE);
+                }else{//vital
+                    g.setColor(Color.ORANGE);
                 }
 
                 g.fillRect(i*tileWidth, j*tileWidth, tileWidth, tileWidth);

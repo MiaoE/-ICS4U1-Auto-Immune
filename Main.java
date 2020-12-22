@@ -6,6 +6,6 @@
  */
 public class Main {
     public static void main(String[] argument) {
-        StartFrame start = new StartFrame();
+        new GameFrame();
     }
 }

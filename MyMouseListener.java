@@ -10,10 +10,12 @@ import java.awt.event.MouseEvent;
 public class MyMouseListener implements MouseListener {
     private final int tileWidth;
     private final int size;
+    private final GameObject[][] board;
 
-    public MyMouseListener(int tileWidth, int boardSize) {
+    public MyMouseListener(int tileWidth, int boardSize, GameObject[][] board) {
         this.tileWidth = tileWidth;
         size = boardSize;
+        this.board = board;
     }
 
     @Override
@@ -24,6 +26,7 @@ public class MyMouseListener implements MouseListener {
         } else {
             System.out.println("Clicked tile " + x + " " + y);
         }
+        //board[x][y] = 8;//why is it x,y
     }
 
     @Override

@@ -6,7 +6,13 @@
  * @version 0.1 20/12/21
  */
 abstract class GameObject {
+
     private int x, y;//position on the game board
+
+    GameObject(int x, int y){
+        this.x = x;
+        this.y = y;
+    }
 
     public int getX() {
         return x;
