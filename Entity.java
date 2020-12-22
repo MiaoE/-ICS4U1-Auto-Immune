@@ -1,7 +1,5 @@
 /**
  * [Entity.java]
- *
- *
  */
 abstract class Entity extends GameObject implements Damageable {
     private int health;
