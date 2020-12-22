@@ -2,11 +2,20 @@ import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.awt.Color;
 
+/**
+ * [GamePanel.java]
+ *
+ * @author Eric Miao
+ * @version
+ */
 public class GamePanel extends JPanel {
     int[][] matrix;
+    final int tileWidth;
 
-    public GamePanel(int[][] map) {
+    public GamePanel(int[][] map, int tileWidth) {
         matrix = map;
+
+        this.tileWidth = tileWidth;
 
         this.requestFocusInWindow();
 
@@ -24,7 +33,6 @@ public class GamePanel extends JPanel {
      * The main game loop - this is where the game state is updated
      */
     public void animate() {
-
         while (true) {
             this.repaint();
         }
@@ -43,10 +51,10 @@ public class GamePanel extends JPanel {
                     g.setColor(Color.BLUE);
                 }
 
-                g.fillRect(i*50, j*50, 50, 50);
-                
+                g.fillRect(i*tileWidth, j*tileWidth, tileWidth, tileWidth);
+
                 g.setColor(Color.BLACK);
-                g.drawRect(i*50, j*50, 50, 50);
+                g.drawRect(i*tileWidth, j*tileWidth, tileWidth, tileWidth);
             }
         }
     }
