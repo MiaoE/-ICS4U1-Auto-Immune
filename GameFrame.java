@@ -3,6 +3,13 @@ import javax.swing.JPanel;
 import java.awt.Toolkit;
 import java.util.Random;
 
+/**
+ * [GameFrame.java]
+ *
+ * @author Ayden Gao
+ * @author Eric Miao
+ * @version
+ */
 public class GameFrame extends JFrame {
 
     int[][] matrix;

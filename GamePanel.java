@@ -2,6 +2,12 @@ import javax.swing.JPanel;
 import java.awt.Graphics;
 import java.awt.Color;
 
+/**
+ * [GamePanel.java]
+ *
+ * @author Eric Miao
+ * @version
+ */
 public class GamePanel extends JPanel {
     int[][] matrix;
     final int tileWidth;

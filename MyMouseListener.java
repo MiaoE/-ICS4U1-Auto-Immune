@@ -1,6 +1,12 @@
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 
+/**
+ * [MyMouseListener.java]
+ *
+ * @author Eric Miao
+ * @version
+ */
 public class MyMouseListener implements MouseListener {
     private final int tileWidth;
     private final int size;
