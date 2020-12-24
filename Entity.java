@@ -8,6 +8,7 @@
  */
 abstract class Entity extends GameObject implements Damageable {
     private int health;
+    private int prevX;
 
     Entity(int x, int y, int health){
         super(x, y);

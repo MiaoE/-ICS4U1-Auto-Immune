@@ -14,4 +14,9 @@ public class Warrior extends Enemy implements Attackable {
     Warrior(int x, int y, int health, int attackDamage, int attackRange){
         super(x, y, health, attackDamage, attackRange);
     }
+
+    public void move(int x, int y){
+        super.setX(x);
+        super.setY(y);
+    }
 }
