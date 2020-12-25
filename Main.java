@@ -13,6 +13,12 @@ public class Main {
     public static GameObject[][] board;
     public static int size;
 
+    /**
+     * main
+     * The method that executes the program
+     *
+     * @param argument arguments
+     */
     public static void main(String[] argument) {
         ArrayList<Warrior> enemyList = createEnemyList(3);
         size = 8;
@@ -30,6 +36,13 @@ public class Main {
         //new GameFrame();
     }
 
+    /**
+     * gameLoop
+     * The main loop of the game
+     *
+     * @param board     the board
+     * @param enemyList the arrayList of enemy
+     */
     public static void gameLoop(GameObject[][] board, ArrayList<Warrior> enemyList) {
         while (true) {
             for (Warrior warrior : enemyList) {
@@ -37,9 +50,10 @@ public class Main {
                     TimeUnit.SECONDS.sleep(1);
                 } catch (InterruptedException ignored) {
                 }
-                printBoard(board);
                 enemyMove(board, warrior);
+                printBoard(board);
             }
+            playerMove(board);
         }
     }
 
@@ -56,7 +70,6 @@ public class Main {
         board[enemy.getY()][enemy.getX()] = null;//makes prev position null
         enemy.move(ans[0], ans[1]);//changes x and y
         board[ans[1]][ans[0]] = enemy;//changes position on the game board
-        return;
     }
 
     //this method will be changed to get actual good x and y cords for enemy
@@ -81,9 +94,78 @@ public class Main {
     }
 
     /**
-     * Places the player at a desired location
+     * playerMove
+     * Player chooses a unit on the board to move to a location
      *
      * @param board the board
+     */
+    public static void playerMove(GameObject[][] board) {
+        ArrayList<Soldier> movedPlayer = new ArrayList<>();
+        Scanner in = new Scanner(System.in);
+        boolean endTurn = false;
+        while (!endTurn) {
+            System.out.println("Input -1 -1 to end turn");
+            int x = in.nextInt();
+            int y = in.nextInt();
+            if(x == -1 && y == -1) {
+                endTurn = true;
+            } else if (x >= size || y >= size || x < 0 || y < 0) {
+                System.out.println("Out of bound");
+            } else if (board[y][x] instanceof Soldier) {
+                Soldier unit = (Soldier) board[y][x];
+                if(!unit.isMoved()) {
+                    movedPlayer.add(unit);
+                    playerMove(board, unit);
+                } else {
+                    System.out.println("Unit is already moved");
+                }
+            } else {
+                System.out.println("Not a player unit");
+            }
+        }
+
+        for(int i = 0; i < movedPlayer.size(); i++) {
+            movedPlayer.get(i).setMoved(false);
+        }
+    }
+
+    /**
+     * playerMove
+     * This method moves a player unit on the board from one position to another
+     *
+     * @param board the board
+     * @param unit  the player unit
+     */
+    private static void playerMove(GameObject[][] board, Soldier unit) {
+        Scanner in = new Scanner(System.in);
+        boolean placed = false;
+        while (!placed) {
+            int x = in.nextInt();
+            int y = in.nextInt();
+            if (x >= size || y >= size || x < 0 || y < 0) {
+                System.out.println("Out of bound");
+            } else if (x == unit.getX() && y == unit.getY()) {
+                System.out.println("Did not move");
+            } else if (board[y][x] != null) {
+                System.out.println("Tile occupied");
+            } else {
+                board[unit.getY()][unit.getX()] = null;
+                board[y][x] = unit;
+                unit.setX(x);
+                unit.setY(y);
+                unit.setMoved(true);
+                placed = true;
+            }
+        }
+    }
+
+    /**
+     * Places the player at a desired location.
+     * This method does not move the player, it simply places a unit on the board.
+     * For player movement, visit {@code playerMove} method.
+     *
+     * @param board the board
+     * @see Main#playerMove(GameObject[][], Soldier)
      */
     private static void placePlayer(GameObject[][] board) {
         Scanner in = new Scanner(System.in);
