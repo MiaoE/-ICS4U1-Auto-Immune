@@ -8,7 +8,7 @@
  */
 abstract class Obstacle extends GameObject {
 
-    Obstacle(int x, int y){
+    Obstacle(int x, int y) {
         super(x, y);
     }
 

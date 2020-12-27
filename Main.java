@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * [Main.java]
  *
+ * @author Ayden Gao
  * @author Eric Miao
  */
 public class Main {
@@ -107,13 +108,13 @@ public class Main {
             System.out.println("Input -1 -1 to end turn");
             int x = in.nextInt();
             int y = in.nextInt();
-            if(x == -1 && y == -1) {
+            if (x == -1 && y == -1) {
                 endTurn = true;
             } else if (x >= size || y >= size || x < 0 || y < 0) {
                 System.out.println("Out of bound");
             } else if (board[y][x] instanceof Soldier) {
                 Soldier unit = (Soldier) board[y][x];
-                if(!unit.isMoved()) {
+                if (!unit.isMoved()) {
                     movedPlayer.add(unit);
                     playerMove(board, unit);
                 } else {
@@ -124,7 +125,7 @@ public class Main {
             }
         }
 
-        for(int i = 0; i < movedPlayer.size(); i++) {
+        for (int i = 0; i < movedPlayer.size(); i++) {
             movedPlayer.get(i).setMoved(false);
         }
     }
