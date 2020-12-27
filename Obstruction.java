@@ -8,6 +8,7 @@
  */
 class Obstruction extends Obstacle {
     private int health;
+
     Obstruction(int x, int y, int health){
         super(x, y);
         this.health = health;

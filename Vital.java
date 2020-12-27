@@ -8,6 +8,7 @@
  */
 public class Vital extends Obstacle {
     private int health;
+
     Vital(int x, int y, int health){
         super(x, y);
         this.health = health;
