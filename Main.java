@@ -45,7 +45,8 @@ public class Main {
      * @param enemyList the arrayList of enemy
      */
     public static void gameLoop(GameObject[][] board, ArrayList<Warrior> enemyList) {
-        while (true) {
+        boolean running = true;
+        while (running) {
             for (Warrior warrior : enemyList) {
                 try {
                     TimeUnit.SECONDS.sleep(1);
@@ -53,6 +54,7 @@ public class Main {
                 }
                 enemyMove(board, warrior);
                 printBoard(board);
+                //certain condition: running = false;
             }
             playerMove(board);
         }
