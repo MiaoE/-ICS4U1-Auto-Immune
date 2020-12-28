@@ -27,6 +27,7 @@ public class Soldier extends Player implements Attackable {
      * @return the damage of the attack
      */
     public int attack() {
-        return 0;
+        return getAttackDamage();
     }
+
 }

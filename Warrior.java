@@ -7,6 +7,7 @@
  * @version 0.1 20/12/22
  */
 public class Warrior extends Enemy implements Attackable {
+    private int attackX, attackY = -1;
 
     /**
      * Warrior Constructor
@@ -26,7 +27,23 @@ public class Warrior extends Enemy implements Attackable {
      * @return the damage of the attack
      */
     public int attack() {
-        return 0;
+        return getAttackDamage();
+    }
+
+    public int getAttackY() {
+        return attackY;
+    }
+
+    public void setAttackY(int attackY) {
+        this.attackY = attackY;
+    }
+
+    public int getAttackX() {
+        return attackX;
+    }
+
+    public void setAttackX(int attackX) {
+        this.attackX = attackX;
     }
 
     /**
@@ -40,7 +57,7 @@ public class Warrior extends Enemy implements Attackable {
         //however, I'm not sure if those methods should be private.
         //If they are, then we need setX() setY() for each of its subclasses, including
         //the superclass for {@code this} class, which is {@code Enemy} class
-        super.setX(x);
-        super.setY(y);
+        setX(x);
+        setY(y);
     }
 }

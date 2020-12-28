@@ -14,4 +14,12 @@ abstract class Enemy extends Entity {
         this.attackDamage = attackDamage;
         this.attackRange = attackRange;
     }
+
+    public int getAttackDamage() {
+        return attackDamage;
+    }
+
+    public void setAttackDamage(int attackDamage){
+        this.attackDamage = attackDamage;
+    }
 }
