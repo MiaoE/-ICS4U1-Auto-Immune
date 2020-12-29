@@ -26,6 +26,7 @@ public class Soldier extends Player implements Attackable {
      *
      * @return the damage of the attack
      */
+    @Override
     public int attack() {
         return getAttackDamage();
     }
