@@ -8,18 +8,21 @@
  */
 abstract class Entity extends GameObject implements Damageable {
     private int health;
-    private int prevX;
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
+    }
 
     Entity(int x, int y, int health){
         super(x, y);
         this.health = health;
     }
 
-    public void damageTaken(int damage) {
-        health -= damage;
-
-        if(health <= 0) {
-            //death method
-        }
+    public void damageTaken(int damage){
+        setHealth(getHealth() - damage);
     }
 }

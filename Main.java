@@ -7,14 +7,22 @@ import java.util.concurrent.TimeUnit;
 /**
  * [Main.java]
  *
+ * @author Ayden Gao
  * @author Eric Miao
  */
 public class Main {
     public static GameObject[][] board;
     public static int size;
 
+    /**
+     * main
+     * The method that executes the program
+     *
+     * @param argument arguments
+     */
     public static void main(String[] argument) {
         ArrayList<Warrior> enemyList = createEnemyList(3);
+        ArrayList<Soldier> playerList;
         size = 8;
         board = new GameObject[size][size];
         generateMap();
@@ -23,25 +31,228 @@ public class Main {
         generateVitals(board, 2);
 
         printBoard(board);
-        placePlayer(board);
+        playerList = placePlayer(board, 2);
         printBoard(board);
 
-        gameLoop(board, enemyList);
+        gameLoop(board, enemyList, playerList);
         //new GameFrame();
     }
 
-    public static void gameLoop(GameObject[][] board, ArrayList<Warrior> enemyList) {
-        while (true) {
-            for (Warrior warrior : enemyList) {
+    /**
+     * gameLoop
+     * The main loop of the game
+     *
+     * @param board     the board
+     * @param enemyList the arrayList of enemy
+     */
+    public static void gameLoop(GameObject[][] board, ArrayList<Warrior> enemyList, ArrayList<Soldier> playerList) {
+        boolean running = true;
+        while (running) {
+            for (Warrior warrior : enemyList) {//loops through each item in list
                 try {
                     TimeUnit.SECONDS.sleep(1);
                 } catch (InterruptedException ignored) {
                 }
-                printBoard(board);
+                //attack goes here
+                executeEnemyAttack(board, warrior, enemyList);
                 enemyMove(board, warrior);
+                enemyAttack(board, warrior);
+                printBoard(board);
+                //certain condition: running = false;
+            }
+            playerAction(board, enemyList);
+            resetPlayers(playerList);
+        }
+    }
+
+    /**
+     * playerAction
+     * allows players to select a unit and move and attack with it
+     *
+     * @param board     the game board
+     * @param enemyList the enemy list
+     */
+    public static void playerAction(GameObject[][] board, ArrayList enemyList) {
+        Scanner in = new Scanner(System.in);
+        boolean end = false;
+        int ans;
+        do {
+            System.out.println("1.select unit\n2.quit");
+            ans = in.nextInt();
+            if (ans == 1) {//select unit
+                Soldier unit = (Soldier) selectPlayer(board);
+
+                System.out.println("1.attack\n2.move");
+                ans = in.nextInt();
+
+                if (ans == 1) {//attack
+                    playerAttack(board, unit, enemyList);
+                } else if (ans == 2) {//move
+                    playerMove(board, unit);
+                }
+
+            } else if (ans == 2) {//quit
+                end = true;
+            }
+        } while (!end);
+    }
+
+    /**
+     * select player
+     * Allows user to select the player from the board
+     *
+     * @param board the game board
+     * @return the selected player
+     */
+    public static Player selectPlayer(GameObject[][] board) {
+        Scanner in = new Scanner(System.in);
+        do {
+            int x = in.nextInt();
+            int y = in.nextInt();
+            if (x >= size || y >= size || x < 0 || y < 0) {
+                System.out.println("out of bounds");
+            } else if (board[y][x] instanceof Player) {
+                return (Player) board[y][x];
+            }
+        } while (true);
+    }
+
+    /**
+     * playerAttack
+     * attacks with the selected player
+     *
+     * @param board     the game board
+     * @param player    the player attacking
+     * @param enemyList the enemyList
+     */
+    public static void playerAttack(GameObject[][] board, Soldier player, ArrayList enemyList) {
+        if (player.isAttacked()) {//if player has attacked already
+            System.out.println("this player has already attacked");
+            return;
+        }
+
+        Scanner in = new Scanner(System.in);
+        do {
+            int x = in.nextInt();
+            int y = in.nextInt();
+            if (x >= size || y >= size || x < 0 || y < 0) {
+                System.out.println("out of bounds");
+            } else {//if in bounds
+                GameObject object = board[y][x];
+                if (object instanceof Damageable) {
+                    ((Damageable) object).damageTaken(player.attack());
+
+                    if (((Damageable) object).getHealth() <= 0) {//if object is killed
+                        board[y][x] = null;
+                        if (object instanceof Enemy) {//removes enemy from enemy list
+                            for (int i = 0; i < enemyList.size(); i++) {
+                                if (enemyList.get(i).equals(object)) {
+                                    enemyList.remove(i);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                player.setAttacked(true);
+                return;//if object gets attacked
+            }
+        } while (true);
+    }
+
+    /**
+     * playerMove
+     * moves the player selected based on user input
+     *
+     * @param board the game board
+     * @param unit  the unit to move
+     */
+    public static void playerMove(GameObject[][] board, Soldier unit) {
+        if (unit.isMoved()) {//if player has moved already
+            System.out.println("player has moved already");
+            return;
+        }
+
+        Scanner in = new Scanner(System.in);
+        do {
+            int x = in.nextInt();
+            int y = in.nextInt();
+            if (x >= size || y >= size || x < 0 || y < 0) {
+                System.out.println("out of bounds");
+            } else if (board[y][x] != null) {
+                System.out.println("occupied");
+            } else {
+                board[unit.getY()][unit.getX()] = null;
+                board[y][x] = unit;
+                unit.setX(x);
+                unit.setY(y);
+                unit.setMoved(true);
+            }
+        } while (true);
+    }
+
+    /**
+     * resetPlayers
+     * resets the moved and attacked boolean variables
+     *
+     * @param playerList the list of players
+     */
+    private static void resetPlayers(ArrayList<Soldier> playerList) {
+        for (int i = 0; i < playerList.size(); i++) {
+            Soldier unit = playerList.get(i);
+            unit.setAttacked(false);
+            unit.setMoved(false);
+        }
+    }
+
+    /**
+     * enemyAttack
+     * how the enemy will attack, enemy select a coordinate to attack
+     * if attack x and y is -1 then enemy doesn't attack
+     * if not -1 enemy will attack the square.
+     */
+    private static void enemyAttack(GameObject[][] board, Warrior enemy) {
+        Random rand = new Random();
+        int x = rand.nextInt(size);
+        int y = rand.nextInt(size);
+        enemy.setAttackX(x);
+        enemy.setAttackY(y);
+        System.out.println("enemyAttackX: " + x);
+        System.out.println("enemyAttackY: " + y);
+    }
+
+    /**
+     * executeEnemyAttack
+     * executes the attack of the selected enemy
+     * THis method should include enemy list as we want enemies to be pushed
+     * Enemies won't target them selves but they could if pushed by player
+     */
+    private static void executeEnemyAttack(GameObject[][] board, Warrior enemy, ArrayList enemyList) {
+        int x = enemy.getAttackX();
+        int y = enemy.getAttackY();
+
+        if (x == -1 || y == -1) {//enemy doesn't attack
+            return;
+        }
+
+        GameObject object = board[y][x];
+        if (object instanceof Damageable) {
+            ((Damageable) object).damageTaken(enemy.attack());//takes damage
+
+            if (((Damageable) object).getHealth() <= 0) {//if object is killed
+                board[y][x] = null;
+                if (object instanceof Enemy) {//removes enemy from enemy list
+                    for (int i = 0; i < enemyList.size(); i++) {
+                        if (enemyList.get(i).equals(object)) {
+                            enemyList.remove(i);
+                            break;
+                        }
+                    }
+                }
             }
         }
     }
+
 
     /**
      * enemyMove
@@ -56,7 +267,6 @@ public class Main {
         board[enemy.getY()][enemy.getX()] = null;//makes prev position null
         enemy.move(ans[0], ans[1]);//changes x and y
         board[ans[1]][ans[0]] = enemy;//changes position on the game board
-        return;
     }
 
     //this method will be changed to get actual good x and y cords for enemy
@@ -81,25 +291,37 @@ public class Main {
     }
 
     /**
-     * Places the player at a desired location
+     * Places the player at a desired location.
+     * This method does not move the player, it simply places a unit on the board.
+     * For player movement, visit {@code playerMove} method.
+     * <p>
+     * ***Ive edited this method so it creates a player arrayList
      *
      * @param board the board
+     * @see Main#playerMove(GameObject[][], Soldier)
      */
-    private static void placePlayer(GameObject[][] board) {
+    private static ArrayList<Soldier> placePlayer(GameObject[][] board, int playerNum) {
         Scanner in = new Scanner(System.in);
-        boolean placed = false;
-        while (!placed) {
-            int x = in.nextInt();
-            int y = in.nextInt();
-            if (x >= size || y >= size || x < 0 || y < 0) {
-                System.out.println("Out of bound");
-            } else if (board[y][x] != null) {
-                System.out.println("Tile occupied");
-            } else {
-                board[y][x] = new Soldier(x, y, 3, 1, 1);
-                placed = true;
+        boolean placed;
+        ArrayList<Soldier> playerList = new ArrayList<>();
+        for (int i = 0; i < playerNum; i++) {//creates each player
+            placed = false;
+            while (!placed) {
+                int x = in.nextInt();
+                int y = in.nextInt();
+                if (x >= size || y >= size || x < 0 || y < 0) {
+                    System.out.println("Out of bound");
+                } else if (board[y][x] != null) {
+                    System.out.println("Tile occupied");
+                } else {
+                    Soldier unit = new Soldier(x, y, 3, 20, 1);
+                    board[y][x] = unit;
+                    playerList.add(unit);
+                    placed = true;
+                }
             }
         }
+        return playerList;
     }
 
     /**

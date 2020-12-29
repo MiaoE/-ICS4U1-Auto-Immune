@@ -5,4 +5,6 @@
  */
 public interface Damageable {
     void damageTaken(int damage);
+
+    int getHealth();
 }
