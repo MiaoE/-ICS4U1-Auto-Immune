@@ -4,7 +4,7 @@
  *
  * @author Ayden Gao
  * @author Eric Miao
- * @version 0.1 20/12/21
+ * @version 1.0 20/12/29
  */
 class Obstruction extends Obstacle implements Damageable {
     private int health;

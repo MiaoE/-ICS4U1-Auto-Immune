@@ -4,7 +4,7 @@
  *
  * @author Ayden Gao
  * @author Eric Miao
- * @version 0.1 20/12/22
+ * @version 1.0 20/12/29
  */
 public class Warrior extends Enemy implements Attackable {
 

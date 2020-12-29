@@ -4,7 +4,7 @@
  *
  * @author Ayden Gao
  * @author Eric Miao
- * @version 0.1 20/12/22
+ * @version 1.0 20/12/29
  */
 abstract class Enemy extends Entity {
     private int attackDamage, attackRange;
