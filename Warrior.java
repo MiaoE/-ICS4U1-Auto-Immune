@@ -1,6 +1,7 @@
 /**
  * [Warrior.java]
- * Subclass of enemy
+ * An object representing an infantry unit of the {@code Enemy} side.
+ * Infantry is able to attack other objects.
  *
  * @author Ayden Gao
  * @author Eric Miao
@@ -10,18 +11,21 @@ public class Warrior extends Enemy implements Attackable {
 
     /**
      * Warrior Constructor
-     * @param x x position
-     * @param y y position
-     * @param health health
+     * Contains all the essential information to create a unit.
+     *
+     * @param x            x position
+     * @param y            y position
+     * @param health       health
      * @param attackDamage attack damage
-     * @param attackRange attack range
+     * @param attackRange  attack range
      */
-    Warrior(int x, int y, int health, int attackDamage, int attackRange){
+    Warrior(int x, int y, int health, int attackDamage, int attackRange) {
         super(x, y, health, attackDamage, attackRange);
     }
 
     /**
      * attack
+     * Attacks a tile.
      *
      * @return the damage of the attack
      */

@@ -7,6 +7,17 @@ import java.util.InputMismatchException;
 
 /**
  * [Main.java]
+ * The game starts with randomly placed {@code Obstacle} on a board.
+ * The objective of the game is to protect vitals at all cost.
+ * {@code Enemy} places their units on one side of the board, and {@code Player} places their units in any of
+ * the specified interactive tiles.
+ *
+ * Each unit has their own abilities and characteristics.
+ * For instance, some units can move far but deals minimal damage while some other units can only move
+ * one tile but deals a lot of damage. Furthermore, some units can heal their allies or perform their unique ability.
+ *
+ * At the end, the player has to strategically place their units and kill enemy players before they
+ * destroy a specified number of vitals.
  *
  * @author Ayden Gao
  * @author Eric Miao
@@ -18,7 +29,7 @@ public class Main {
 
     /**
      * main
-     * The method that executes the program
+     * The method that executes the program.
      *
      * @param args arguments
      */
@@ -29,10 +40,6 @@ public class Main {
         board = new GameObject[size][size];
 
         //Creates map
-        //generate map is redundant as when you created the map, everything is already null
-        //no point of re-filling null with null
-        generateMap(board);
-        //---------------------------
         generateObstacles(board, 6, 2);
         enemyList = generateEnemy(board, 3);
 
@@ -48,7 +55,7 @@ public class Main {
 
     /**
      * gameLoop
-     * The main loop of the game
+     * The main loop of the game.
      *
      * @param board     the board
      * @param enemyList the arrayList of enemy
@@ -71,9 +78,9 @@ public class Main {
 
     /**
      * executeEnemyAttack
-     * Executes the attack of the selected enemy
-     * THis method should include enemy list as we want enemies to be pushed
-     * Enemies won't target them selves but they could if pushed by player
+     * Executes the attack of the selected enemy.
+     * This method should include enemy list as enemies will be pushed.
+     * Enemies won't target themselves and their allies but they can be damaged if pushed by player.
      *
      * @param board      game board
      * @param playerList list of players
@@ -106,7 +113,7 @@ public class Main {
 
     /**
      * enemyMove
-     * moves the inputted enemy on the game board
+     * Moves each of the alive enemies.
      *
      * @param board     the board
      * @param enemyList the list of enemies
@@ -125,14 +132,12 @@ public class Main {
      * findEnemyXY
      * Helper method for {@code enemyMove} method.
      * This method gets the x and y coordinates of an empty spot for the enemy unit to move to
-     * (currently random x and y that is not another {@code Enemy}, will be changed)
+     * (currently random x and y that is not another {@code Enemy}, will be changed).
      *
      * @param board the board
      * @param enemy the enemy
      * @return an array of length 2 containing the x and y coordinates
-     *
      * @see Main#enemyMove(GameObject[][], ArrayList)
-     * @see Enemy
      */
     private static int[] findEnemyXY(GameObject[][] board, Enemy enemy) {
         int[] ans = new int[2];
@@ -146,10 +151,10 @@ public class Main {
 
     /**
      * enemyAttack
-     * Defines how the enemy will attack next round:
-     * Enemy select a coordinate to attack.
-     * If attack x and y is -1 then enemy doesn't attack next round,
-     * otherwise enemy will attack the tile next round.
+     * Defines how and where the enemy will attack next round:
+     * Each enemy will select a coordinate to attack.
+     * If any of the {@code attackX} and {@code attackY} variables are -1 then enemy will not attack next round,
+     * otherwise enemy will attack the specified tile next round.
      *
      * @param board     game board
      * @param enemyList the list of enemies
@@ -172,7 +177,8 @@ public class Main {
 
     /**
      * playerAction
-     * allows players to select a unit and move and attack with it
+     * Allows players to select a unit and choose a specified action for that unit.
+     * Player's turn will not end until the player insists on ending their turn.
      *
      * @param board     the game board
      * @param enemyList the enemy list
@@ -219,11 +225,13 @@ public class Main {
     }
 
     /**
-     * select player
-     * Allows user to select the player from the board
+     * selectPlayer
+     * A helper method for {@code playerAction} method.
+     * Select the player unit according to the coordinate on the board.
      *
      * @param board the game board
      * @return the selected player
+     * @see Main#playerAction(GameObject[][], ArrayList)
      */
     public static Player selectPlayer(GameObject[][] board) {
         Scanner in = new Scanner(System.in);
@@ -240,7 +248,8 @@ public class Main {
 
     /**
      * playerAttack
-     * attacks with the selected player
+     * Player will select a x and y coordinate to attack,
+     * Player unit will attack the coordinate if the unit has not attacked previously in the same turn.
      *
      * @param board     the game board
      * @param player    the player attacking
@@ -280,7 +289,7 @@ public class Main {
 
     /**
      * playerMove
-     * moves the player selected based on user input
+     * Moves the Player unit to the inputted coordinate.
      *
      * @param board the game board
      * @param unit  the unit to move
@@ -313,7 +322,8 @@ public class Main {
 
     /**
      * resetPlayers
-     * resets the moved and attacked boolean variables
+     * Resets the moved and attacked boolean variables.
+     * This method runs after the Player ends their turn.
      *
      * @param playerList the list of players
      */
@@ -326,10 +336,10 @@ public class Main {
 
     /**
      * Places the player at a desired location.
-     * This method does not move the player, it simply places a unit on the board.
+     * Places the player on the board at a desired empty coordinate.
+     * This method is only ran at the beginning of the program, when the game is setting up
+     *
      * For player movement, visit {@code playerMove} method.
-     * <p>
-     * ***Ive edited this method so it creates a player arrayList
      *
      * @param board the board
      * @see Main#playerMove(GameObject[][], Player)
@@ -359,28 +369,13 @@ public class Main {
     }
 
     /**
-     * Creates the game board
-     * <p>
-     * delete this, redundant
-     * </p>
-     *
-     * @param board the board
-     */
-    private static void generateMap(GameObject[][] board) {
-        for (GameObject[] gameObjects : board) {
-            //matrix[i][j] = random.nextInt(10);
-            Arrays.fill(gameObjects, null);
-        }
-    }
-
-    /**
      * generateObstacles
-     * Adds obstacles to the game board.
-     * Including obstructions and vitals
+     * Adds {@code Obstacle} to the game board.
      *
      * @param board          the board
      * @param obstructionNum the number of obstacles to add
      * @param vitalNum       the number of vitals to add
+     * @see Obstacle
      */
     private static void generateObstacles(GameObject[][] board, int obstructionNum, int vitalNum) {
         Random random = new Random();
@@ -404,12 +399,13 @@ public class Main {
 
     /**
      * generateEnemy
-     * Creates an arrayList containing the enemies on the board.
-     * Additionally, it places the enemy onto the game board
+     * Adds {@code Enemy} to the game board. Additionally,
+     * the method creates and returns an ArrayList containing the enemies generated.
      *
      * @param board    the board
      * @param enemyNum the number of enemies to be created
      * @return the ArrayList of enemies
+     * @see Enemy
      */
     private static ArrayList<Enemy> generateEnemy(GameObject[][] board, int enemyNum) {
         Random random = new Random();
@@ -429,7 +425,8 @@ public class Main {
     }
 
     /**
-     * Prints the updated game board
+     * printBoard
+     * Prints the updated game board to the console.
      *
      * @param board the board
      */
@@ -455,7 +452,7 @@ public class Main {
 
     /**
      * waitSecond
-     * Stops the program a number of seconds
+     * Stops the program for a number of seconds
      *
      * @param second number of seconds
      */
