@@ -5,10 +5,10 @@
  *
  * @author Ayden Gao
  * @author Eric Miao
- * @version 1.0 20/12/29
+ * @version 2.0 21/01/07
  */
 public class PlayerArtillery extends Player implements Attackable {
-    private int attackDamage;
+    private final int attackDamage;
 
     /**
      * Soldier Constructor
