@@ -16,4 +16,11 @@ public interface Movable {
      * @param y the y coordinate
      */
     void move(int x, int y);
+
+    /**
+     * takeKnockback
+     * Takes the knockback and moves back a specific knockback tiles.
+     *
+     */
+    void takeKnockback(int dx, int dy);
 }

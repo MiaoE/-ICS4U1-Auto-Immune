@@ -46,4 +46,16 @@ abstract class Obstacle extends GameObject implements Damageable {
     public void damageTaken(int damage) {
         health -= damage;
     }
+
+    /**
+     * setCoordinate
+     * As obstacles cannot be moved, overriding is required to restrict that.
+     *
+     * @param x the x coordinate
+     * @param y the y coordinate
+     */
+    @Override
+    public void setCoordinate(int x, int y) {
+        System.out.println("You cannot move this object");
+    }
 }

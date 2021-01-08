@@ -50,6 +50,12 @@ abstract class Entity extends GameObject implements Damageable, Movable {
         this.health = health;
     }
 
+    /**
+     * getAttackRange
+     * Returns the attack range of the unit
+     *
+     * @return the attack range
+     */
     public int getAttackRange(){
         return attackRange;
     }
@@ -79,7 +85,10 @@ abstract class Entity extends GameObject implements Damageable, Movable {
      */
     @Override
     public void move(int x, int y) {
-        setX(x);
-        setY(y);
+        setCoordinate(x, y);
+    }
+
+    public void takeKnockback() {
+
     }
 }
