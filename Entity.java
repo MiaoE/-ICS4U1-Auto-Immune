@@ -5,7 +5,7 @@
  *
  * @author Ayden Gao
  * @author Eric Miao
- * @version 1.0 20/12/29
+ * @version 2.0 21/01/07
  */
 abstract class Entity extends GameObject implements Damageable, Movable {
     private int health;

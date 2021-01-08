@@ -35,4 +35,9 @@ public class EnemyArtillery extends Enemy implements Attackable {
     public int attack() {
         return attackDamage;
     }
+
+    @Override
+    public void takeKnockback(int x, int y) {
+
+    }
 }
