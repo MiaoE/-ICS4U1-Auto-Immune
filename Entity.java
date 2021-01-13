@@ -5,10 +5,12 @@
  *
  * @author Ayden Gao
  * @author Eric Miao
- * @version 1.0 20/12/29
+ * @version 2.0 21/01/07
  */
 abstract class Entity extends GameObject implements Damageable, Movable {
     private int health;
+    private final double movementRange;
+    private final int attackRange;
 
     /**
      * Entity Constructor
@@ -20,9 +22,11 @@ abstract class Entity extends GameObject implements Damageable, Movable {
      * @param health the initial health value
      * @see GameObject
      */
-    Entity(int x, int y, int health) {
+    Entity(int x, int y, int health, double movementRange, int attackRange) {
         super(x, y);
         this.health = health;
+        this.movementRange = movementRange;
+        this.attackRange = attackRange;
     }
 
     /**
@@ -47,6 +51,20 @@ abstract class Entity extends GameObject implements Damageable, Movable {
     }
 
     /**
+     * getAttackRange
+     * Returns the attack range of the unit
+     *
+     * @return the attack range
+     */
+    public int getAttackRange(){
+        return attackRange;
+    }
+
+    public double getMovementRange(){
+        return movementRange;
+    }
+
+    /**
      * damageTaken
      * This method is used to take away a certain damage caused by {@code attack} method from {@code Attackable}
      *
@@ -67,7 +85,10 @@ abstract class Entity extends GameObject implements Damageable, Movable {
      */
     @Override
     public void move(int x, int y) {
-        setX(x);
-        setY(y);
+        setCoordinate(x, y);
+    }
+
+    public void takeKnockback(int x, int y) {
+
     }
 }

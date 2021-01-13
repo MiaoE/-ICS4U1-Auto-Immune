@@ -3,11 +3,12 @@
  * This class is the superclass of all objects in the project.
  *
  * @author Ayden Gao
+ * @author Eric Miao
  * @version 1.0 20/12/29
  */
 abstract class GameObject {
 
-    private int x, y;//position on the game board
+    private Point coordinate;//position on the game board
 
     /**
      * GameObject Constructor
@@ -18,8 +19,7 @@ abstract class GameObject {
      * @param y the y coordinate
      */
     GameObject(int x, int y) {
-        this.x = x;
-        this.y = y;
+        coordinate = new Point(x, y);
     }
 
     /**
@@ -29,17 +29,7 @@ abstract class GameObject {
      * @return an integer that represents the x coordinate
      */
     public int getX() {
-        return x;
-    }
-
-    /**
-     * setX
-     * Sets a new x coordinate of an object
-     *
-     * @param x the new x coordinate
-     */
-    public void setX(int x) {
-        this.x = x;
+        return coordinate.getX();
     }
 
     /**
@@ -49,16 +39,27 @@ abstract class GameObject {
      * @return an integer that represents the y coordinate
      */
     public int getY() {
-        return y;
+        return coordinate.getY();
     }
 
     /**
-     * setY
-     * Sets a new y coordinate of an object
+     * getCoordinate
+     * Returns the coordinates of the object
      *
-     * @param y the new y coordinate
+     * @return a Point object
      */
-    public void setY(int y) {
-        this.y = y;
+    public Point getCoordinate() {
+        return new Point(coordinate);
+    }
+
+    /**
+     * setCoordinate
+     * Sets a new set of coordinates
+     *
+     * @param x the x coordinate
+     * @param y the y coordinate
+     */
+    public void setCoordinate(int x, int y) {
+        coordinate.move(x, y);
     }
 }

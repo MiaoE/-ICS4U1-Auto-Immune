@@ -7,7 +7,8 @@
  * @author Eric Miao
  * @version 1.0 20/12/29
  */
-public class Vital extends Obstacle {
+public class Vital extends Obstacle implements Damageable{
+    private int health;
 
     /**
      * Vital Constructor
@@ -18,6 +19,29 @@ public class Vital extends Obstacle {
      * @param health the initial health value
      */
     Vital(int x, int y, int health) {
-        super(x, y, health);
+        super(x, y);
+        this.health = health;
+    }
+
+    /**
+     * getHealth
+     * Returns the remaining health of an object
+     *
+     * @return an integer represents the health of an object
+     */
+    @Override
+    public int getHealth() {
+        return health;
+    }
+
+    /**
+     * damageTaken
+     * This method is used to take away a certain damage from the object's health
+     *
+     * @param damage the damage taken
+     */
+    @Override
+    public void damageTaken(int damage) {
+        health -= damage;
     }
 }

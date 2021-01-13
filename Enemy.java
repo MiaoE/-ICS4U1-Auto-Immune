@@ -8,73 +8,55 @@
  * @version 1.0 20/12/29
  */
 abstract class Enemy extends Entity {
-    /*Attack damage and range is constant throughout, hence it is final.*/
-    private final int attackDamage, attackRange;
-    private int attackX = -1, attackY = -1;
+    /*
+     * Attack damage and range is constant throughout, hence it is final.
+     */
+    private Point attack;
+    private final int weight;
 
     /**
      * Enemy Constructor
-     * Contains all the essential information to create an enemy object.
+     * Contains all the essential information to create a Enemy object.
      *
      * @param x            the x coordinate
      * @param y            the y coordinate
      * @param health       the initial health value
-     * @param attackDamage the attack damage
+     * @param movementRange the range of movement
      * @param attackRange  the attack range
      */
-    Enemy(int x, int y, int health, int attackDamage, int attackRange) {
-        super(x, y, health);
-        this.attackDamage = attackDamage;
-        this.attackRange = attackRange;
-    }
-
-    /**
-     * getAttackDamage
-     * Returns the attack damage of the unit
-     *
-     * @return an integer that represents the attack damage
-     */
-    public int getAttackDamage() {
-        return attackDamage;
+    Enemy(int x, int y, int health, double movementRange, int attackRange, int weight) {
+        super(x, y, health, movementRange, attackRange);
+        this.weight = weight;
     }
 
     /**
      * getAttackY
      * Gets the y coordinate of the attack destination.
      *
-     * @return the y coordinate
+     * @return the coordinates of the attack destination
      */
-    public int getAttackY() {
-        return attackY;
+    public Point getAttack() {
+        return attack;
     }
 
     /**
      * setAttackY
      * Sets the y coordinate of the attack location next turn.
      *
-     * @param attackY the y coordinate of the next attack
+     * @param attack the coordinates of the next attack
      */
-    public void setAttackY(int attackY) {
-        this.attackY = attackY;
+    public void setAttack(Point attack) {
+        this.attack = attack;
     }
 
     /**
-     * getAttackX
-     * Gets the x coordinate of the attack destination
+     * getWeight
+     * Gets the weighing of the enemy unit. This is a variable that restricts
+     * the spawning of enemies each round.
      *
-     * @return the x coordinate
+     * @return the weight of the enemy unit
      */
-    public int getAttackX() {
-        return attackX;
-    }
-
-    /**
-     * setAttackX
-     * Sets the x coordinate of the attack location next turn.
-     *
-     * @param attackX the x coordinate of the next attack
-     */
-    public void setAttackX(int attackX) {
-        this.attackX = attackX;
+    public int getWeight() {
+        return weight;
     }
 }

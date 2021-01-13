@@ -7,9 +7,7 @@
  * @author Eric Miao
  * @version 1.0 20/12/29
  */
-abstract class Obstacle extends GameObject implements Damageable {
-    private int health;
-
+abstract class Obstacle extends GameObject {
     /**
      * Obstacle Constructor
      * The only constructor of the class.
@@ -17,33 +15,21 @@ abstract class Obstacle extends GameObject implements Damageable {
      *
      * @param x the x coordinate
      * @param y the y coordinate
-     * @param health the initial health value
      * @see GameObject
      */
-    Obstacle(int x, int y, int health) {
+    Obstacle(int x, int y) {
         super(x, y);
-        this.health = health;
     }
 
     /**
-     * getHealth
-     * Returns the remaining health of an object
+     * setCoordinate
+     * As obstacles cannot be moved, overriding is required to restrict that.
      *
-     * @return an integer represents the health of an object
+     * @param x the x coordinate
+     * @param y the y coordinate
      */
     @Override
-    public int getHealth() {
-        return health;
-    }
-
-    /**
-     * damageTaken
-     * This method is used to take away a certain damage from the object's health
-     *
-     * @param damage the damage taken
-     */
-    @Override
-    public void damageTaken(int damage) {
-        health -= damage;
+    public void setCoordinate(int x, int y) {
+        System.out.println("You cannot move this object");
     }
 }

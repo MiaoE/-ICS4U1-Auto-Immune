@@ -8,8 +8,7 @@
  * @version 1.0 20/12/29
  */
 abstract class Player extends Entity {
-    /*Attack damage and range is constant throughout, hence it is final.*/
-    private final int attackDamage, attackRange;
+    private final int knockback;
     private boolean moved;
     private boolean attacked;
 
@@ -20,23 +19,12 @@ abstract class Player extends Entity {
      * @param x            the x coordinate
      * @param y            the y coordinate
      * @param health       the initial health value
-     * @param attackDamage the attack damage
+     * @param movementRange the range of movement
      * @param attackRange  the attack range
      */
-    Player(int x, int y, int health, int attackDamage, int attackRange) {
-        super(x, y, health);
-        this.attackDamage = attackDamage;
-        this.attackRange = attackRange;
-    }
-
-    /**
-     * getAttackDamage
-     * Returns the attack damage of the unit
-     *
-     * @return an integer that represents the attack damage
-     */
-    public int getAttackDamage() {
-        return attackDamage;
+    Player(int x, int y, int health, double movementRange, int attackRange, int knockback) {
+        super(x, y, health, movementRange, attackRange);
+        this.knockback = knockback;
     }
 
     /**
@@ -77,5 +65,15 @@ abstract class Player extends Entity {
      */
     public void setAttacked(boolean attacked) {
         this.attacked = attacked;
+    }
+
+    /**
+     * getKnockback
+     * Gets the knockback value of the player object
+     *
+     * @return the knockback
+     */
+    public int getKnockback(){
+        return knockback;
     }
 }

@@ -4,7 +4,7 @@
  *
  * @author Ayden Gao
  * @author Eric Miao
- * @version 1.0 20/12/29
+ * @version 2.0 21/01/07
  */
 public interface Movable {
 
@@ -16,4 +16,11 @@ public interface Movable {
      * @param y the y coordinate
      */
     void move(int x, int y);
+
+    /**
+     * takeKnockback
+     * Takes the knockback and moves back a specific knockback tiles.
+     *
+     */
+    void takeKnockback(int dx, int dy);
 }
