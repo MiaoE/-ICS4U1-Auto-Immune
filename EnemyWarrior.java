@@ -20,7 +20,7 @@ public class EnemyWarrior extends Enemy implements Attackable {
      * @param attackRange  attack range
      * @param attackDamage the damage of the attack
      */
-    EnemyWarrior(int x, int y, int health, double movementRange, int attackRange, int weight, int attackDamage) {
+    EnemyWarrior(int x, int y, int health, double movementRange, boolean attackRange, int weight, int attackDamage) {
         super(x, y, health, movementRange, attackRange, weight);
         this.attackDamage = attackDamage;
     }

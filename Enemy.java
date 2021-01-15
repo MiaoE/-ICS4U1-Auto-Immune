@@ -24,7 +24,7 @@ abstract class Enemy extends Entity {
      * @param movementRange the range of movement
      * @param attackRange  the attack range
      */
-    Enemy(int x, int y, int health, double movementRange, int attackRange, int weight) {
+    Enemy(int x, int y, int health, double movementRange, boolean attackRange, int weight) {
         super(x, y, health, movementRange, attackRange);
         this.weight = weight;
     }

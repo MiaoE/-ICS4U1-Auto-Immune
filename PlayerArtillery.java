@@ -19,8 +19,10 @@ public class PlayerArtillery extends Player implements Attackable {
      * @param health       health
      * @param attackRange  attack range
      * @param attackDamage the damage of the attack
+     * @param movementRange the movement range
+     * @param knockback  the knockback
      */
-    PlayerArtillery(int x, int y, int health, double movementRange, int attackRange, int attackDamage, int knockback) {
+    PlayerArtillery(int x, int y, int health, double movementRange, boolean attackRange, int attackDamage, int knockback) {
         super(x, y, health, movementRange, attackRange, knockback);
         this.attackDamage = attackDamage;
     }

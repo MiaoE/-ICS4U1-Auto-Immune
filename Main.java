@@ -43,6 +43,7 @@ public class Main {
 
         //Creates map
         generateObstacles(6);
+        generateKillTiles(4);
         enemyList = generateEnemy(3);
         vitalList = generateVitals(3);
 
@@ -60,10 +61,10 @@ public class Main {
      * gameLoop
      * The main loop of the game.
      *
-     * @param enemyList the arrayList of enemy
+     * @param enemyList  the arrayList of enemy
      * @param playerList the list of players
-     * @param vitalList the list of vitals
-     * @param spawnList the list of spawns
+     * @param vitalList  the list of vitals
+     * @param spawnList  the list of spawns
      */
     public static void gameLoop(ArrayList<Enemy> enemyList, ArrayList<Player> playerList, ArrayList<Vital> vitalList, ArrayList<SpawnTile> spawnList) {
         boolean win = true;
@@ -113,7 +114,7 @@ public class Main {
                 x = rand.nextInt(8);
                 y = rand.nextInt(8);
             } while (board[y][x] != null);
-            SpawnTile temp = new SpawnTile(x, y, new EnemyWarrior(x, y, 3, 5, 0, 3,3));
+            SpawnTile temp = new SpawnTile(x, y, new EnemyWarrior(x, y, 3, 5, false, 3, 3));
             board[y][x] = temp;
             spawnList.add(temp);
         }
@@ -144,30 +145,36 @@ public class Main {
      * @param vitalList  list of vitals
      */
     private static void enemyAttack(ArrayList<Enemy> enemyList, ArrayList<Player> playerList, ArrayList<Vital> vitalList) {
-        Point[] option;
-        Random rand = new Random();
-        ArrayList<Point[]> options;
-
         for (Enemy enemy : enemyList) {
-            options = new ArrayList<>();
+            ArrayList<Point[]> options = new ArrayList<>();
+            GameObject closestObject = null;
             for (Player player : playerList) {
                 //checks if player is within range
-                if(Math.sqrt(Math.pow(player.getX()-enemy.getX(), 2) + Math.pow(player.getY()-enemy.getY(), 2)) <= enemy.getMovementRange()) {
+                if (distance(player.getCoordinate(), enemy.getCoordinate()) <= enemy.getMovementRange()) {
                     options.add(enemyAttackable(player, enemy));
+                }
+
+                if (closestObject == null) {
+                    closestObject = player;
+                } else if (distance(player.getCoordinate(), enemy.getCoordinate()) < distance(closestObject.getCoordinate(), enemy.getCoordinate())) {
+                    closestObject = player;
                 }
             }
             for (Vital vital : vitalList) {
-                if(Math.sqrt(Math.pow(vital.getX()-enemy.getX(), 2) + Math.pow(vital.getY()-enemy.getY(), 2)) <= enemy.getMovementRange()) {
+                if (distance(vital.getCoordinate(), enemy.getCoordinate()) <= enemy.getMovementRange()) {
                     options.add(enemyAttackable(vital, enemy));
                 }
+
+                if (closestObject == null) {
+                    closestObject = vital;
+                } else if (distance(vital.getCoordinate(), enemy.getCoordinate()) < distance(closestObject.getCoordinate(), enemy.getCoordinate())) {
+                    closestObject = vital;
+                }
             }
-            //if enemy has 0 attack options it will result in an error (can't 0 bound random)
-            //must make option for where enemy has no options
-            //if this is the case enemy should move towards the player of vitals
-            //for now if statement to check
-            //if no options enemy will stay still
+
             if (options.size() != 0) {
-                option = options.get(rand.nextInt(options.size()));
+                Random rand = new Random();
+                Point[] option = options.get(rand.nextInt(options.size()));
 
                 board[enemy.getY()][enemy.getX()] = null;//makes prev position null
                 enemy.move(option[0].getX(), option[0].getY());//changes x and y
@@ -175,8 +182,23 @@ public class Main {
 
                 enemy.setAttack(option[1]);//changes attack X and Y
                 System.out.println("enemy at " + enemy.getCoordinate().toString() + " will attack " + enemy.getAttack().toString());
+            } else {
+                Point moveTo = new Point((enemy.getX() + closestObject.getX()) / 2, (enemy.getY() + closestObject.getY()) / 2);
+                if (distance(enemy.getCoordinate(), moveTo) < enemy.getMovementRange()) {
+                    board[enemy.getY()][enemy.getX()] = null;//makes prev position null
+                    enemy.move(moveTo.getX(), moveTo.getY());//changes x and y
+                    board[moveTo.getY()][moveTo.getX()] = enemy;//changes position on the game board
+
+                    enemy.setAttack(new Point(-1, -1));
+                } else {
+
+                }
             }
         }
+    }
+
+    private static double distance(Point a, Point b) {
+        return Math.sqrt(Math.pow(a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2));
     }
 
     /**
@@ -200,7 +222,7 @@ public class Main {
         int yO = object.getY();
 
         point[1] = object.getCoordinate();
-        if (enemy.getAttackRange() == 1) {//melee attacker
+        if (!enemy.getAttackRange()) {//melee attacker
             //for loop to check directly adjacent tiles instead of multiple if statements
             if ((xO + 1 < size) && (board[yO][xO + 1] == null)) {
                 point[0] = new Point(xO + 1, yO);
@@ -239,7 +261,7 @@ public class Main {
      * @param enemyList  list of enemies
      */
     private static void executeEnemyAttack(ArrayList<Player> playerList, ArrayList<Enemy> enemyList, ArrayList<Vital> vitalList) {
-        for (Enemy enemy : enemyList) {
+        for (Enemy enemy : enemyList) {//for each loop is wack, if you remove something it breaks
             Point attack = enemy.getAttack();
 
             if (attack == null) {//enemy doesn't attack
@@ -256,9 +278,9 @@ public class Main {
                     System.out.println("Object at " + object.getCoordinate().toString() + " is obliterated");
                     if (object instanceof Player) {
                         playerList.remove(object);
-                    } else if(object instanceof Enemy){
+                    } else if (object instanceof Enemy) {
                         enemyList.remove(object);
-                    }else if(object instanceof Vital){
+                    } else if (object instanceof Vital) {
                         vitalList.remove(object);
                     }
                 }
@@ -355,13 +377,13 @@ public class Main {
             int y = in.nextInt();
             if (x >= size || y >= size || x < 0 || y < 0) {
                 System.out.println("out of bounds");
-            } else if (x != player.getX() && y != player.getY()) {
+            } else if (x != player.getX() && y != player.getY()) {//if tile is not adjacent
                 System.out.println("out of range");
             } else {//if in bounds
-                int attackRange = player.getAttackRange();
-
-                if (attackRange == 1) {//melee
-                    if (!(Math.abs(player.getX() - x) <= attackRange && Math.abs(player.getY() - y) <= attackRange)) {
+                //checks if attack position is within melee range
+                //Why does this use !
+                if (!player.getAttackRange()) {//melee
+                    if (!((Math.abs(player.getX() - x)) <= 1 && Math.abs(player.getY() - y) <= 1)) {
                         System.out.println("out of range");
                         return;
                     }
@@ -371,8 +393,8 @@ public class Main {
                 System.out.println("Player at " + player.getX() + " " + player.getY() + " attacks " + x + " " + y);
                 if (object instanceof Damageable && player instanceof Attackable) {
                     ((Damageable) object).damageTaken(((Attackable) player).attack());
-                    if(object instanceof Movable){
-                        takeKnockback(player, object);
+                    if (object instanceof Movable) {
+                        takeKnockback(player, object, enemyList, playerList);
                     }
                     if (((Damageable) object).getHealth() <= 0) {//if object is destroyed or killed
                         board[y][x] = null;
@@ -385,11 +407,10 @@ public class Main {
                             vitalList.remove(object);
                         }
                     }
-
-                    player.setAttacked(true);
-                    printBoard();
-                    return;//if object gets attacked
                 }
+                player.setAttacked(true);
+                printBoard();
+                return;//if object gets attacked
             }
         } while (true);
     }
@@ -399,96 +420,190 @@ public class Main {
      * Will move a unit int knockback units away from its original position
      * If the knocked back unit is an enemy, the location of its attack will change accordingly
      *
-     * @param player the object exerting the knockback
-     * @param object the object getting knocked back
+     * @param player     the object exerting the knockback
+     * @param object     the object getting knocked back
+     * @param enemyList  list of enemies
+     * @param playerList list of players
      */
-    private static void takeKnockback(Player player, GameObject object){
+    private static void takeKnockback(Player player, GameObject object, ArrayList<Enemy> enemyList, ArrayList<Player> playerList) {
+        //when this method is called the object are already adjacent to one another
         int attackerX = player.getX();//the object attacking
         int attackerY = player.getY();
         int attackeeX = object.getX();//the object getting attacked
         int attackeeY = object.getY();
 
-        //this can definitely be done more efficiently
-        //Haven't tested it out but I am pretty sure that this method will result in error if an enemies attack is pushed out of bounds
-        if(attackerX == attackeeX && attackerY < attackeeY){//DOWN
+        int direction;//if the movement is in a positive or negative direction
+        boolean vertical;//if the movement is vertical
 
-            for(int i = attackeeY; i <= attackeeY + player.getKnockback(); i++){
-                if(i > size - 1){//checks if out of bounds
-                    break;
-                }
-                if(board[i][attackeeX] == null){//if the tile can be moved on
-                    board[attackeeY][attackeeX] = null;
-                    ((Movable) object).move(attackeeX, i);
-                    board[i][attackeeX] = object;
+        if (attackerX == attackeeX && attackerY < attackeeY) {//DOWN
+            direction = 1;
+            vertical = true;
+        } else if (attackerX == attackeeX && attackerY > attackeeY) {//UP
+            direction = -1;
+            vertical = true;
+        } else if (attackerY == attackeeY && attackerX > attackeeX) {//LEFT
+            direction = -1;
+            vertical = false;
+        } else {//RIGHT
+            direction = 1;
+            vertical = false;
+        }
 
-                    if(object instanceof Enemy && object instanceof Attackable){//if object is an attackable enemy
-                        if(((Enemy)object).getAttack().getX() != -1){//if there is an attack
-                            ((Enemy) object).setAttack(new Point(((Enemy) object).getAttack().getX(),((Enemy) object).getAttack().getY() + (i - attackeeY)));
-                        }
-                    }
-                }
+        int x, y;
+        for (int i = 0; i <= player.getKnockback(); i++) {//loops 'knockback' amount of times
+            if (vertical) {//vertical knockback
+                x = attackeeX;
+                y = attackeeY + (i * direction);
+            } else {//horizontal knockback
+                x = attackeeX + (i * direction);
+                y = attackerY;
             }
 
-        }else if(attackerX == attackeeX && attackerY > attackeeY){//UP
-
-            for(int i = attackeeY; i >= attackeeY - player.getKnockback(); i--){
-                if(i < 0){
-                    break;
-                }
-                if(board[i][attackeeX] == null){
-                    board[attackeeY][attackeeX] = null;
-                    ((Movable) object).move(attackeeX, i);
-                    board[i][attackeeX] = object;
-
-                    if(object instanceof Enemy && object instanceof Attackable){
-                        if(((Enemy)object).getAttack().getX() != -1){
-                            ((Enemy) object).setAttack(new Point(((Enemy) object).getAttack().getX(),((Enemy) object).getAttack().getY() - (i*-1 + attackeeY)));
-                        }
-                    }
-                }
+            if (x >= size || y >= size || y < 0 || x < 0) {//checks if values are in bound
+                break;
             }
+            if (board[y][x] == null) {// if the tile can be moved on
+                //moves the object onto that tile
+                board[attackeeY][attackeeX] = null;
+                ((Movable) object).move(x, y);
+                board[y][x] = object;
 
-        }else if(attackerY == attackeeY && attackerX > attackeeX){//LEFT
-
-            for(int i = attackeeX; i >= attackeeX - player.getKnockback(); i--){
-                if(i < 0){
-                    break;
-                }
-                if(board[attackeeY][i] == null){
-                    board[attackeeY][attackeeX] = null;
-                    ((Movable) object).move(i, attackerY);
-                    board[attackeeY][i] = object;
-
-                    if(object instanceof Enemy && object instanceof Attackable){
-                        if(((Enemy)object).getAttack().getX() != -1){
-                            ((Enemy) object).setAttack(new Point(((Enemy) object).getAttack().getX() - (i*-1 + attackeeX), ((Enemy) object).getAttack().getY()));
+                if (object instanceof Enemy && object instanceof Attackable) {//if object is an attackable enemy
+                    if (((Enemy) object).getAttack().getX() != -1) {//if there is an attack
+                        if (vertical) {//vertical push
+                            ((Enemy) object).setAttack(new Point(((Enemy) object).getAttack().getX(), ((Enemy) object).getAttack().getY() + (i * direction)));
+                        } else {//horizontal push
+                            ((Enemy) object).setAttack(new Point(((Enemy) object).getAttack().getX() + (i * direction), ((Enemy) object).getAttack().getY()));
                         }
                     }
                 }
-            }
-
-        }else if(attackeeY == attackerY && attackerX < attackeeX){//RIGHT
-
-            for(int i = attackeeX; i <= attackeeX + player.getKnockback(); i++){
-                if(i > size - 1){
-                    break;
+            } else if (board[y][x] instanceof KillTile) {
+                if (object instanceof Enemy) {
+                    enemyList.remove(object);//remove object from list
+                } else if (object instanceof Player) {
+                    playerList.remove(object);//remove object from list
                 }
-                if(board[attackeeY][i] == null){
-                    board[attackeeY][attackeeX] = null;
-                    ((Movable) object).move(i, attackerY);
-                    board[attackeeY][i] = object;
-
-                    if(object instanceof Enemy && object instanceof Attackable){
-                        if(((Enemy)object).getAttack().getX() != -1){
-                            ((Enemy) object).setAttack(new Point(((Enemy) object).getAttack().getX() + (i - attackeeX), ((Enemy) object).getAttack().getY()));
-                        }
-                    }
-                }
+                board[object.getY()][object.getX()] = null;//remove object from board
+                System.out.println("object at " + attackeeX + " " + attackeeY + " is killed by kill tile at " + x + " " + y);
             }
         }
-        if(object instanceof Enemy){//prints out new position and attack position
-            System.out.println("object at "+object.getX()+" "+object.getY()+" will attack at "+((Enemy) object).getAttack().getX()+" "+((Enemy) object).getAttack().getY());
+
+        if (object instanceof Enemy) {//prints out new position and attack position
+            System.out.println("object at " + object.getX() + " " + object.getY() + " will attack at " + ((Enemy) object).getAttack().getX() + " " + ((Enemy) object).getAttack().getY());
         }
+
+//        //this can definitely be done more efficiently
+//        //Haven't tested it out but I am pretty sure that this method will result in error if an enemies attack is pushed out of bounds
+//        //Perhaps one for loop then you change the values of i depend on the direct pushed
+//        if (attackerX == attackeeX && attackerY < attackeeY) {//DOWN
+//
+//            for (int i = attackeeY; i <= attackeeY + player.getKnockback(); i++) {
+//                if (i > size - 1) {//checks if out of bounds
+//                    break;
+//                }
+//                if (board[i][attackeeX] == null) {//if the tile can be moved on
+//                    board[attackeeY][attackeeX] = null;
+//                    ((Movable) object).move(attackeeX, i);
+//                    board[i][attackeeX] = object;
+//
+//                    if (object instanceof Enemy && object instanceof Attackable) {//if object is an attackable enemy
+//                        if (((Enemy) object).getAttack().getX() != -1) {//if there is an attack
+//                            ((Enemy) object).setAttack(new Point(((Enemy) object).getAttack().getX(), ((Enemy) object).getAttack().getY() + (i - attackeeY)));
+//                        }
+//                    }
+//                } else if (board[i][attackeeX] instanceof KillTile) {
+//                    if (object instanceof Enemy) {
+//                        enemyList.remove(object);//remove object from list
+//                    } else if (object instanceof Player) {
+//                        playerList.remove(object);//remove object from list
+//                    }
+//                    board[object.getY()][object.getX()] = null;//remove object from board
+//                }
+//            }
+//
+//        } else if (attackerX == attackeeX && attackerY > attackeeY) {//UP
+//
+//            int num = -1;
+//
+//            for (int i = attackeeY; i >= attackeeY - player.getKnockback(); i--) {
+//                if (i < 0) {
+//                    break;
+//                }
+//                if (board[i][attackeeX] == null) {
+//                    board[attackeeY][attackeeX] = null;
+//                    ((Movable) object).move(attackeeX, i);
+//                    board[i][attackeeX] = object;
+//
+//                    if (object instanceof Enemy && object instanceof Attackable) {
+//                        if (((Enemy) object).getAttack().getX() != -1) {
+//                            ((Enemy) object).setAttack(new Point(((Enemy) object).getAttack().getX(), ((Enemy) object).getAttack().getY() - (i * -1 + attackeeY)));
+//                        }
+//                    }
+//                } else if (board[i][attackeeX] instanceof KillTile) {
+//                    if (object instanceof Enemy) {
+//                        enemyList.remove(object);//remove object from list
+//                    } else if (object instanceof Player) {
+//                        playerList.remove(object);//remove object from list
+//                    }
+//                    board[object.getY()][object.getX()] = null;//remove object from board
+//                }
+//            }
+//
+//        } else if (attackerY == attackeeY && attackerX > attackeeX) {//LEFT
+//
+//            for (int i = attackeeX; i >= attackeeX - player.getKnockback(); i--) {
+//                if (i < 0) {
+//                    break;
+//                }
+//                if (board[attackeeY][i] == null) {
+//                    board[attackeeY][attackeeX] = null;
+//                    ((Movable) object).move(i, attackerY);
+//                    board[attackeeY][i] = object;
+//
+//                    if (object instanceof Enemy && object instanceof Attackable) {
+//                        if (((Enemy) object).getAttack().getX() != -1) {
+//                            ((Enemy) object).setAttack(new Point(((Enemy) object).getAttack().getX() - (i * -1 + attackeeX), ((Enemy) object).getAttack().getY()));
+//                        }
+//                    }
+//                } else if (board[attackeeY][i] instanceof KillTile) {
+//                    if (object instanceof Enemy) {
+//                        enemyList.remove(object);//remove object from list
+//                    } else if (object instanceof Player) {
+//                        playerList.remove(object);//remove object from list
+//                    }
+//                    board[object.getY()][object.getX()] = null;//remove object from board
+//                }
+//            }
+//
+//        } else if (attackeeY == attackerY && attackerX < attackeeX) {//RIGHT
+//
+//            for (int i = attackeeX; i <= attackeeX + player.getKnockback(); i++) {
+//                if (i > size - 1) {
+//                    break;
+//                }
+//                if (board[attackeeY][i] == null) {
+//                    board[attackeeY][attackeeX] = null;
+//                    ((Movable) object).move(i, attackerY);
+//                    board[attackeeY][i] = object;
+//
+//                    if (object instanceof Enemy && object instanceof Attackable) {
+//                        if (((Enemy) object).getAttack().getX() != -1) {
+//                            ((Enemy) object).setAttack(new Point(((Enemy) object).getAttack().getX() + (i - attackeeX), ((Enemy) object).getAttack().getY()));
+//                        }
+//                    }
+//                } else if (board[attackeeY][i] instanceof KillTile) {
+//                    if (object instanceof Enemy) {
+//                        enemyList.remove(object);//remove object from list
+//                    } else if (object instanceof Player) {
+//                        playerList.remove(object);//remove object from list
+//                    }
+//                    board[object.getY()][object.getX()] = null;//remove object from board
+//                }
+//            }
+//        }
+//        if (object instanceof Enemy) {//prints out new position and attack position
+//            System.out.println("object at " + object.getX() + " " + object.getY() + " will attack at " + ((Enemy) object).getAttack().getX() + " " + ((Enemy) object).getAttack().getY());
+//        }
     }
 
     /**
@@ -563,12 +678,12 @@ public class Main {
                     System.out.println("Tile occupied");
                 } else {
                     if (i == 0) {
-                        PlayerWarrior unit = new PlayerWarrior(x, y, 3, 6, 1, 2, 1);
+                        PlayerWarrior unit = new PlayerWarrior(x, y, 3, 6, false, 2, 1);
                         board[y][x] = unit;
                         playerList.add(unit);
                         placed = true;
                     } else if (i == 1) {
-                        PlayerArtillery unit = new PlayerArtillery(x, y, 2, 7, 2, 1, 1);
+                        PlayerArtillery unit = new PlayerArtillery(x, y, 2, 7, true, 1, 1);
                         board[y][x] = unit;
                         playerList.add(unit);
                         placed = true;
@@ -577,6 +692,25 @@ public class Main {
             }
         }
         return playerList;
+    }
+
+    /**
+     * generateKillTiles
+     * Adds {@code KillTile} to the game board.
+     *
+     * @param killTileNum the number of kill tiles to generate
+     * @see Obstacle
+     */
+    private static void generateKillTiles(int killTileNum) {
+        Random random = new Random();
+        int x, y;
+        for (int i = 0; i < killTileNum; i++) {
+            do {
+                x = random.nextInt(8);
+                y = random.nextInt(8);
+            } while (board[y][x] != null);
+            board[y][x] = new KillTile(x, y);
+        }
     }
 
     /**
@@ -596,7 +730,6 @@ public class Main {
             } while (board[y][x] != null);
             board[y][x] = new Obstruction(x, y, 3);
         }
-
     }
 
     private static ArrayList<Vital> generateVitals(int vitalNum) {
@@ -635,11 +768,11 @@ public class Main {
             } while (board[y][x] != null);
             //TEMPORARY, this is just to add an artillery enemy
             if (i == 2) {
-                Enemy temp = new EnemyArtillery(x, y, 2, 4, 2, 1,1);
+                Enemy temp = new EnemyArtillery(x, y, 2, 4, true, 1, 1);
                 enemyList.add(temp);
                 board[y][x] = temp;
             } else { //--------end
-                Enemy warrior = new EnemyWarrior(x, y, 3, 4, 1, 1,2);
+                Enemy warrior = new EnemyWarrior(x, y, 3, 4, false, 1, 2);
                 board[y][x] = warrior;
                 enemyList.add(warrior);
             }
@@ -670,6 +803,10 @@ public class Main {
                     System.out.printf("%s ", "V");
                 } else if (index instanceof SpawnTile) {
                     System.out.printf("%s ", "S");
+                } else if (index instanceof Hole) {
+                    System.out.printf("%s ", "H");
+                } else if (index instanceof KillTile) {
+                    System.out.printf("%s ", "K");
                 }
             }
             System.out.println();

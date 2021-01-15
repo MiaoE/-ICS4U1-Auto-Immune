@@ -10,7 +10,7 @@
 abstract class Entity extends GameObject implements Damageable, Movable {
     private int health;
     private final double movementRange;
-    private final int attackRange;
+    private final boolean attackRange;
 
     /**
      * Entity Constructor
@@ -22,7 +22,7 @@ abstract class Entity extends GameObject implements Damageable, Movable {
      * @param health the initial health value
      * @see GameObject
      */
-    Entity(int x, int y, int health, double movementRange, int attackRange) {
+    Entity(int x, int y, int health, double movementRange, boolean attackRange) {
         super(x, y);
         this.health = health;
         this.movementRange = movementRange;
@@ -56,7 +56,7 @@ abstract class Entity extends GameObject implements Damageable, Movable {
      *
      * @return the attack range
      */
-    public int getAttackRange(){
+    public boolean getAttackRange(){
         return attackRange;
     }
 

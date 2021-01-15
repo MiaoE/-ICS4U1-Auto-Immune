@@ -22,7 +22,7 @@ abstract class Player extends Entity {
      * @param movementRange the range of movement
      * @param attackRange  the attack range
      */
-    Player(int x, int y, int health, double movementRange, int attackRange, int knockback) {
+    Player(int x, int y, int health, double movementRange, boolean attackRange, int knockback) {
         super(x, y, health, movementRange, attackRange);
         this.knockback = knockback;
     }
