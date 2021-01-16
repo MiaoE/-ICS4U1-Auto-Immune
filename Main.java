@@ -42,8 +42,8 @@ public class Main {
         board = new GameObject[size][size];
 
         //Creates map
-        generateObstacles(6);
-        generateKillTiles(4);
+        generateObstacles(1);
+        generateKillTiles(2);
         enemyList = generateEnemy(3);
         vitalList = generateVitals(3);
 
@@ -91,7 +91,7 @@ public class Main {
         if (win) {
             System.out.println("Winner!");
         } else {
-            System.out.println("loser");
+            System.out.println("Loser");
         }
     }
 
@@ -150,8 +150,17 @@ public class Main {
             GameObject closestObject = null;
             for (Player player : playerList) {
                 //checks if player is within range
-                if (distance(player.getCoordinate(), enemy.getCoordinate()) < (enemy.getMovementRange() + Math.sqrt(2))) {
+                if (distance(player.getCoordinate(), enemy.getCoordinate()) <= enemy.getMovementRange()) {
                     options.add(enemyAttackable(player, enemy));
+                } else if (enemy.getAttackRange()) {//if enemy can shoot across map, only 1 axis movement required
+                    if (Math.abs(enemy.getX() - player.getX()) <= enemy.getMovementRange()) {
+                        Point[] targets = {new Point(player.getX(), enemy.getY()), player.getCoordinate()};
+                        options.add(targets);
+                    }
+                    if (Math.abs(enemy.getY() - player.getY()) <= enemy.getMovementRange()) {
+                        Point[] targets = {new Point(enemy.getX(), player.getY()), player.getCoordinate()};
+                        options.add(targets);
+                    }
                 }
 
                 if (closestObject == null) {
@@ -161,8 +170,17 @@ public class Main {
                 }
             }
             for (Vital vital : vitalList) {
-                if (distance(vital.getCoordinate(), enemy.getCoordinate()) < (enemy.getMovementRange() + Math.sqrt(2))) {
+                if (distance(vital.getCoordinate(), enemy.getCoordinate()) <= (enemy.getMovementRange())) {
                     options.add(enemyAttackable(vital, enemy));
+                } else if (enemy.getAttackRange()) {//if enemy can shoot across map, only 1 axis movement required
+                    if (Math.abs(enemy.getX() - vital.getX()) <= enemy.getMovementRange()) {
+                        Point[] targets = {new Point(vital.getX(), enemy.getY()), vital.getCoordinate()};
+                        options.add(targets);
+                    }
+                    if (Math.abs(enemy.getY() - vital.getY()) <= enemy.getMovementRange()) {
+                        Point[] targets = {new Point(enemy.getX(), vital.getY()), vital.getCoordinate()};
+                        options.add(targets);
+                    }
                 }
 
                 if (closestObject == null) {
@@ -172,7 +190,7 @@ public class Main {
                 }
             }
 
-            if (options.size() != 0) {
+            if (!options.isEmpty()) {
                 Random rand = new Random();
                 Point[] option = options.get(rand.nextInt(options.size()));
 
@@ -189,7 +207,15 @@ public class Main {
                 enemy.move(moveTo.getX(), moveTo.getY());//changes x and y
                 board[moveTo.getY()][moveTo.getX()] = enemy;//changes position on the game board
 
-                enemy.setAttack(new Point(-1, -1));
+                if (enemy.getX() == closestObject.getX() && Math.abs(enemy.getY() - closestObject.getY()) == 1) {
+                    enemy.setAttack(closestObject.getCoordinate());
+                    System.out.println("enemy at " + enemy.getCoordinate().toString() + " will attack " + enemy.getAttack().toString());
+                } else if (enemy.getY() == closestObject.getY() && Math.abs(enemy.getX() - closestObject.getX()) == 1) {
+                    enemy.setAttack(closestObject.getCoordinate());
+                    System.out.println("enemy at " + enemy.getCoordinate().toString() + " will attack " + enemy.getAttack().toString());
+                } else {
+                    enemy.setAttack(null);
+                }
             }
         }
     }
@@ -216,7 +242,55 @@ public class Main {
      * @return the furthest point where enemy can move to
      */
     private static Point enemyMove(Enemy enemy, GameObject object) {
+        int moveToX, moveToY;
 
+        //if x within movement range, y is out of range
+        if (Math.abs(enemy.getX() - object.getX()) <= enemy.getMovementRange()) {
+            moveToX = object.getX();
+
+            int yDisplacement = (int) Math.sqrt(Math.pow(enemy.getMovementRange(), 2) - Math.pow(enemy.getX() - object.getX(), 2));
+            //if enemy is below object, enemy moves up
+            if (enemy.getY() < object.getY()) {
+                moveToY = enemy.getY() + yDisplacement;
+            } else {
+                moveToY = enemy.getY() - yDisplacement;
+            }
+            return new Point(moveToX, moveToY);
+        }
+
+        //if y within movement range, x is out of range
+        if (Math.abs(enemy.getY() - object.getY()) <= enemy.getMovementRange()) {
+            moveToY = object.getY();
+
+            int xDisplacement = (int) Math.sqrt(Math.pow(enemy.getMovementRange(), 2) - Math.pow(enemy.getY() - object.getY(), 2));
+            //if enemy is to the left of object, enemy moves right
+            if (enemy.getX() < object.getX()) {
+                moveToX = enemy.getX() + xDisplacement;
+            } else {
+                moveToX = enemy.getX() - xDisplacement;
+            }
+            return new Point(moveToX, moveToY);
+        }
+
+        //x and y are both out of range, enemy has to move furthest diagonally
+        int distance = (int) Math.sqrt(Math.pow(enemy.getMovementRange(), 2) / 2);
+
+        //determine direction
+        if (enemy.getX() < object.getX() && enemy.getY() < object.getY()) {
+            moveToX = enemy.getX() + distance;
+            moveToY = enemy.getY() + distance;
+        } else if (enemy.getX() < object.getX()) {
+            moveToX = enemy.getX() + distance;
+            moveToY = enemy.getY() - distance;
+        } else if (enemy.getY() < object.getY()) {
+            moveToX = enemy.getX() - distance;
+            moveToY = enemy.getY() + distance;
+        } else {
+            moveToX = enemy.getX() - distance;
+            moveToY = enemy.getY() - distance;
+        }
+
+        return new Point(moveToX, moveToY);
     }
 
     /**
@@ -232,32 +306,50 @@ public class Main {
         Point[] point = new Point[2];
 
         Point enemyCord = enemy.getCoordinate();
-        Point objectCord = object.getCoordinate();
         int xO = object.getX();
         int yO = object.getY();
 
         point[1] = object.getCoordinate();
         if (!enemy.getAttackRange()) {//melee attacker
+            double distance, shortestDistance = 100;
+            Point coord;
             //for loop to check directly adjacent tiles instead of multiple if statements
-            if ((xO + 1 < size) && (board[yO][xO + 1] == null) && distance(enemyCord, new Point(xO + 1, yO)) <= enemy.getMovementRange()) {
-                point[0] = new Point(xO + 1, yO);
-                return point;
-            } else if ((xO - 1 > -1) && (board[yO][xO - 1] == null) && distance(enemyCord, new Point(xO - 1, yO)) <= enemy.getMovementRange()) {
-                point[0] = new Point(xO - 1, yO);
-                return point;
-            } else if ((yO + 1 < size) && (board[yO + 1][xO] == null) && distance(enemyCord, new Point(xO, yO + 1)) <= enemy.getMovementRange()) {
-                point[0] = new Point(xO, yO + 1);
-                return point;
-            } else if ((yO - 1 > -1) && (board[yO - 1][xO] == null) && distance(enemyCord, new Point(xO, yO - 1)) <= enemy.getMovementRange()) {
-                point[0] = new Point(xO, yO - 1);
+            if ((xO + 1 < size) && (board[yO][xO + 1] == null) && (distance = distance(enemyCord, coord = new Point(xO + 1, yO))) <= enemy.getMovementRange()) {
+                if(point[0] == null) {
+                    shortestDistance = distance;
+                    point[0] = new Point(xO + 1, yO);
+                }
+            }
+            if ((xO - 1 > -1) && (board[yO][xO - 1] == null) && (distance = distance(enemyCord, coord = new Point(xO - 1, yO))) <= enemy.getMovementRange()) {
+                if(point[0] == null || distance < shortestDistance) {
+                    shortestDistance = distance;
+                    point[0] = new Point(xO - 1, yO);
+                }
+            }
+            if ((yO + 1 < size) && (board[yO + 1][xO] == null) && (distance = distance(enemyCord, coord = new Point(xO, yO + 1))) <= enemy.getMovementRange()) {
+                if(point[0] == null || distance < shortestDistance) {
+                    shortestDistance = distance;
+                    point[0] = new Point(xO, yO + 1);
+                }
+            }
+            if ((yO - 1 > -1) && (board[yO - 1][xO] == null) && (distance = distance(enemyCord, coord = new Point(xO, yO - 1))) <= enemy.getMovementRange()) {
+                if(point[0] == null || distance < shortestDistance) {
+                    shortestDistance = distance;
+                    point[0] = new Point(xO, yO - 1);
+                }
+            }
+            return point;
+        } else {//ranged attacker new Point(xO+1, yO)new Point(xO+1, yO)
+            if (yO == enemyCord.getY() || xO == enemyCord.getX()) {
+                point[0] = enemyCord;
                 return point;
             }
-        } else {//ranged attackernew Point(xO+1, yO)new Point(xO+1, yO)
+
             for (int i = 0; i < size; i++) {
-                if ((board[yO][i] == null)) {//horizontal axis
+                if ((board[yO][i] == null) && (distance(enemyCord, new Point(i, yO)) <= enemy.getMovementRange())) {//horizontal axis
                     point[0] = new Point(i, yO);
                     return point;
-                } else if ((board[i][xO] == null)) {//vertical axis
+                } else if ((board[i][xO] == null) && (distance(enemyCord, new Point(xO, i)) <= enemy.getMovementRange())) {//vertical axis
                     point[0] = new Point(xO, i);
                     return point;
                 }
@@ -783,11 +875,11 @@ public class Main {
             } while (board[y][x] != null);
             //TEMPORARY, this is just to add an artillery enemy
             if (i == 2) {
-                Enemy temp = new EnemyArtillery(x, y, 2, 4, true, 1, 1);
+                Enemy temp = new EnemyArtillery(x, y, 2, 3, true, 1, 1);
                 enemyList.add(temp);
                 board[y][x] = temp;
             } else { //--------end
-                Enemy warrior = new EnemyWarrior(x, y, 3, 4, false, 1, 2);
+                Enemy warrior = new EnemyWarrior(x, y, 3, 3, false, 1, 2);
                 board[y][x] = warrior;
                 enemyList.add(warrior);
             }
