@@ -497,14 +497,14 @@ public class Main {
                 }
 
                 GameObject object = board[y][x];
-                System.out.println("Player at " + player.getX() + " " + player.getY() + " attacks " + x + " " + y);
+                System.out.println("Player at " + player.getCoordinate().toString() + " attacks " + x + " " + y);
                 if (object instanceof Damageable && player instanceof Attackable) {
                     ((Damageable) object).damageTaken(((Attackable) player).attack());
                     if (object instanceof Movable) {
                         takeKnockback(player, object, enemyList, playerList);
                     }
                     if (((Damageable) object).getHealth() <= 0) {//if object is destroyed or killed
-                        board[y][x] = null;
+                        board[object.getY()][object.getX()] = null;
                         System.out.println("Object at " + x + " " + y + " is destroyed or killed");
                         if (object instanceof Enemy) {//removes enemy from enemy list
                             enemyList.remove(object);
