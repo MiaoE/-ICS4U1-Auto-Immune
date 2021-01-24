@@ -1,5 +1,6 @@
 package com.summative.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 /**
@@ -21,7 +22,7 @@ public class PlayerSupport extends Player {
      * @param attackRange the attack range of object
      * @param knockback the knockback
      */
-    PlayerSupport(int x, int y, Texture texture, int health, double movementRange, boolean attackRange, int knockback){
-        super(x, y, texture, health, movementRange, attackRange, knockback);
+    PlayerSupport(int x, int y, int health, double movementRange, boolean attackRange, int knockback){
+        super(x, y, new Texture(Gdx.files.internal("PlayerSupport.png")), health, movementRange, attackRange, knockback);
     }
 }

@@ -1,5 +1,6 @@
 package com.summative.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 /**
@@ -24,8 +25,8 @@ public class EnemyWarrior extends Enemy implements Attackable {
      * @param attackRange  attack range
      * @param attackDamage the damage of the attack
      */
-    EnemyWarrior(int x, int y, Texture texture, int health, double movementRange, boolean attackRange, int weight, int attackDamage) {
-        super(x, y, texture, health, movementRange, attackRange, weight);
+    EnemyWarrior(int x, int y, int health, double movementRange, boolean attackRange, int weight, int attackDamage) {
+        super(x, y, new Texture(Gdx.files.internal("EnemyWarrior.png")), health, movementRange, attackRange, weight);
         this.attackDamage = attackDamage;
     }
 

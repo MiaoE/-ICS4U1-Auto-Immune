@@ -1,5 +1,6 @@
 package com.summative.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 /**
@@ -24,8 +25,8 @@ class Obstruction extends Obstacle implements Damageable{
      * @param y the y coordinate
      * @param health the initial health value
      */
-    Obstruction(int x, int y, Texture texture, int health) {
-        super(x, y, texture);
+    Obstruction(int x, int y, int health) {
+        super(x, y, new Texture(Gdx.files.internal("Obstacle.png")));
         this.health = health;
     }
 

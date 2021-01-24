@@ -11,7 +11,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Image;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -108,16 +109,16 @@ public class Game extends ApplicationAdapter {
                 System.out.println("Tile occupied");
             } else {
 
-                if (playerList.size() == 0) {
-                    PlayerWarrior unit = new PlayerWarrior(tileX, tileY, new Texture(Gdx.files.internal("PlayerWarrior.png")), 3, 6, false, 2, 1);
+                if (playerList.size() <2) {
+                    PlayerWarrior unit = new PlayerWarrior(tileX, tileY,  3, 4, false, 2, 1);
                     board[tileY][tileX] = unit;
                     playerList.add(unit);
-                } else if (playerList.size() == 1) {
-                    PlayerArtillery unit = new PlayerArtillery(tileX, tileY, new Texture(Gdx.files.internal("PlayerArtillary.png")), 2, 7, true, 1, 1);
+                } else if (playerList.size() <4) {
+                    PlayerArtillery unit = new PlayerArtillery(tileX, tileY, 2, 3, true, 1, 1);
                     board[tileY][tileX] = unit;
                     playerList.add(unit);
-                } else if (playerList.size() == 2) {
-                    PlayerSupport unit = new PlayerSupport(tileX, tileY, new Texture(Gdx.files.internal("PlayerSupport.png")), 2, 7, true, 6);
+                } else if (playerList.size() <5) {
+                    PlayerSupport unit = new PlayerSupport(tileX, tileY, 2, 5, true, 5);
                     board[tileY][tileX] = unit;
                     playerList.add(unit);
                 }
@@ -126,7 +127,7 @@ public class Game extends ApplicationAdapter {
             System.out.println(tileX + " " + tileY);
             System.out.println();
 
-            if (playerList.size() == 3) {
+            if (playerList.size() == 5) {
                 initialize = false;
                 round++;
             }
@@ -181,31 +182,16 @@ public class Game extends ApplicationAdapter {
                 shapeRenderer.polygon(vertices);
                 shapeRenderer.end();
 
-                if(board[j][i] instanceof KillTile){//doesnt have img yet
-                    shapeRenderer.begin();
-                    shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
-                    shapeRenderer.setColor(Color.PINK);
-                    Vector2 centre = cartToIso(new Vector2(j * tileSize + tileSize / 2, i * tileSize + tileSize / 2));
-                    shapeRenderer.circle(centre.x + 50, centre.y + halfHeight, 10);
-                    shapeRenderer.end();
-                }else if(board[j][i] instanceof SpawnTile){//doesnt have img yet
-                    shapeRenderer.begin();
-                    shapeRenderer.set(ShapeRenderer.ShapeType.Line);
-                    shapeRenderer.setColor(0, 0, 0, 1);
-                    Vector2 centre = cartToIso(new Vector2(j * tileSize + tileSize / 2, i * tileSize + tileSize / 2));
-                    shapeRenderer.circle(centre.x + 50, centre.y + halfHeight, 10);
-                    shapeRenderer.end();
-                } else if (board[j][i] instanceof EnemySupport) {
-                    shapeRenderer.begin();
-                    shapeRenderer.set(ShapeRenderer.ShapeType.Line);
-                    shapeRenderer.setColor(1, 0, 0, 1);
-                    Vector2 centre = cartToIso(new Vector2(j * tileSize + tileSize / 2, i * tileSize + tileSize / 2));
-                    shapeRenderer.circle(centre.x + 50, centre.y + halfHeight, 10);
-                    shapeRenderer.end();
-                } else if(board[j][i] != null){
+                if(board[j][i] != null){
                     batch.begin();
                     Vector2 centre = cartToIso(new Vector2(j * tileSize + tileSize / 2, i * tileSize + tileSize / 2));
-                    batch.draw(board[j][i].getTexture(), centre.x + 50 - tileSize/2, centre.y + halfHeight - 32);
+                    batch.draw(board[j][i].getTexture(), centre.x + 50 - tileSize/2, centre.y + halfHeight - 16);
+
+                    if(board[j][i] instanceof Damageable){
+                        font.setColor(Color.BLUE);
+                        font.draw(batch, Integer.toString(((Damageable) board[j][i]).getHealth()), centre.x + 50, centre.y + halfHeight - tileSize/4);
+                    }
+
                     batch.end();
                 }
             }
@@ -213,11 +199,25 @@ public class Game extends ApplicationAdapter {
 
         if (playerTurn) {
             shapeRenderer.begin();
-            shapeRenderer.setColor(Color.BLUE);
+            shapeRenderer.setColor(Color.RED);
             shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.rect(400, 50, 100, 50);
-            shapeRenderer.rect(windowWidth - 100, 50, 100, 50);
+            shapeRenderer.rect(1100, 150, 100, 50);
+            shapeRenderer.rect(1100, 50, 100, 50);
+            shapeRenderer.setColor(Color.BLACK);
+            shapeRenderer.set(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.rect(1100, 150, 100, 50);
+            shapeRenderer.rect(1100, 50, 100, 50);
             shapeRenderer.end();
+
+            batch.begin();
+            font.setColor(Color.WHITE);
+            font.draw(batch, "End Turn", 1120, 80);
+            if(modeAttack){
+                font.draw(batch, "Attack: ON", 1110, 180);
+            } else {
+                font.draw(batch, "Attack: OFF", 1110, 180);
+            }
+            batch.end();
         }
         //shapeRenderer.end();
     }
@@ -264,11 +264,11 @@ public class Game extends ApplicationAdapter {
             generate = rand.nextInt(3);
 
             if(generate == 0) {
-                temp = new SpawnTile(x, y, null, new EnemyWarrior(x, y, new Texture(Gdx.files.internal("EnemyWarrior.png")), 3, 5, false, 3, 3));
+                temp = new SpawnTile(x, y, new EnemyWarrior(x, y, 3, 5, false, 3, 3));
             }else if(generate == 1){
-                temp = new SpawnTile(x, y, null, new EnemyArtillery(x, y, new Texture(Gdx.files.internal("EnemyArtillery.png")), 2, 6, true, 2, 1));
+                temp = new SpawnTile(x, y, new EnemyArtillery(x, y, 2, 6, true, 2, 1));
             }else{
-                temp = new SpawnTile(x, y, null, new EnemyDestructor(x, y, new Texture(Gdx.files.internal("EnemyDestructor.png")), 2, 6, true, 2, 1));
+                temp = new SpawnTile(x, y, new EnemyDestructor(x, y, 2, 6, false, 2, 10));
             }
             board[y][x] = temp;
             spawnList.add(temp);
@@ -537,8 +537,8 @@ public class Game extends ApplicationAdapter {
                     }
                 }
                 if (enemy instanceof EnemyDestructor) {
-                    board[enemy.getAttack().getY()][enemy.getAttack().getX()] = new KillTile(enemy.getAttack().getX(), enemy.getAttack().getY(), null);
-                    System.out.println("Kill tile created at " + enemy.getAttack().getX() + " " + enemy.getAttack().getY());
+                    board[attack.getY()][attack.getX()] = new KillTile(attack.getX(), attack.getY());
+                    System.out.println("Kill tile created at " + attack.getX() + " " + attack.getY());
                 }
             }
         }
@@ -559,7 +559,7 @@ public class Game extends ApplicationAdapter {
             int tileY = (int) (mousePressed.y / tileSize);
 
             //if attack button pressed
-            if (mouseX < 500 && mouseX > 400 && mouseY < windowHeight - 50 && mouseY > windowHeight - 100) {
+            if (mouseX < 1200 && mouseX > 1100 && mouseY < windowHeight - 150 && mouseY > windowHeight - 200) {
                 if (modeAttack) {
                     modeAttack = false;
                     System.out.println("attack: off");
@@ -570,7 +570,7 @@ public class Game extends ApplicationAdapter {
             }
 
             //end turn
-            if (mouseX < windowWidth && mouseX > windowWidth - 100 && mouseY < windowHeight - 50 && mouseY > windowHeight - 100) {
+            if (mouseX < 1200 && mouseX > 1100 && mouseY < windowHeight - 50 && mouseY > windowHeight - 100) {
                 modeAttack = false;
                 resetPlayers();
                 unitSelected = null;
@@ -579,7 +579,7 @@ public class Game extends ApplicationAdapter {
             }
 
             //if clicks nothing
-            if (tileX < 0 || tileX >= size || tileY < 0 || tileY >= size) {
+            if (tileX < 0 || tileX >= size || tileY < 0 || tileY >= size || mousePressed.x < 0 || mousePressed.y < 0) {
                 return;
             }
 
@@ -602,6 +602,16 @@ public class Game extends ApplicationAdapter {
                 if (modeAttack) {
                     playerAttack(unitSelected, tileX, tileY);
                 } else if (unitSelected.isMoved()) {
+                    System.out.println("Unit has already moved");
+                } else {
+                    playerMove(unitSelected, tileX, tileY);
+                }
+                unitSelected = null;
+                System.out.println("Select unit");
+            } else if (board[tileY][tileX] instanceof SpawnTile){
+                if (modeAttack) {
+                    playerAttack(unitSelected, tileX, tileY);
+                } else if(unitSelected.isMoved()) {
                     System.out.println("Unit has already moved");
                 } else {
                     playerMove(unitSelected, tileX, tileY);
@@ -693,6 +703,9 @@ public class Game extends ApplicationAdapter {
             return;
         }
 
+        if(board[y][x] instanceof SpawnTile) {
+            spawnList.remove(board[y][x]);
+        }
         board[unit.getY()][unit.getX()] = null;
         board[y][x] = unit;
         unit.move(x, y);
@@ -779,6 +792,34 @@ public class Game extends ApplicationAdapter {
                 board[object.getY()][object.getX()] = null;//remove object from board
                 System.out.println("object at " + attackeeX + " " + attackeeY + " is killed by kill tile at " + x + " " + y);
                 break;
+            } else if(board[y][x] instanceof SpawnTile) {
+                if(i == player.getKnockback()) {//does not go back
+                    board[object.getY()][object.getX()] = null;
+                    spawnList.remove(board[y][x]);
+                    board[y][x] = object;
+                    ((Movable) object).move(x, y);
+                } else {//still goes back
+                    int nextX, nextY;
+                    if (vertical) {
+                        nextX = attackeeX;
+                        nextY = attackeeY + ((i + 1) * direction);
+                    } else {//horizontal knockback
+                        nextX = attackeeX + ((i + 1) * direction);
+                        nextY = attackerY;
+                    }
+
+                    if (nextX >= size || nextY >= size || nextY < 0 || nextX < 0) {//if out of bound, the enemy stays at the spawn tile location
+                        board[object.getY()][object.getX()] = null;
+                        spawnList.remove(board[y][x]);
+                        board[y][x] = object;
+                        ((Movable) object).move(x, y);
+                    } else if (board[nextY][nextX] != null && !(board[nextY][nextX] instanceof KillTile)) {//if next tile has object that's not kill
+                        board[object.getY()][object.getX()] = null;
+                        spawnList.remove(board[y][x]);
+                        board[y][x] = object;
+                        ((Movable) object).move(x, y);
+                    }
+                }
             } else {
                 break;
             }
@@ -818,7 +859,7 @@ public class Game extends ApplicationAdapter {
                 x = random.nextInt(8);
                 y = random.nextInt(8);
             } while (board[y][x] != null);
-            board[y][x] = new KillTile(x, y, null);
+            board[y][x] = new KillTile(x, y);
         }
     }
 
@@ -837,7 +878,7 @@ public class Game extends ApplicationAdapter {
                 x = random.nextInt(8);
                 y = random.nextInt(8);
             } while (board[y][x] != null);
-            board[y][x] = new Obstruction(x, y, new Texture(Gdx.files.internal("Obstacle.png")), 3);
+            board[y][x] = new Obstruction(x, y, 3);
         }
     }
 
@@ -850,7 +891,7 @@ public class Game extends ApplicationAdapter {
                 x = random.nextInt(8);
                 y = random.nextInt(8);
             } while (board[y][x] != null);
-            Vital vital = new Vital(x, y, new Texture(Gdx.files.internal("Vital.png")), 2);
+            Vital vital = new Vital(x, y, 2);
             board[y][x] = vital;
             vitalList.add(vital);
         }
@@ -877,11 +918,11 @@ public class Game extends ApplicationAdapter {
             } while (board[y][x] != null);
             //TEMPORARY, this is just to add an artillery enemy
             if (i == 2) {
-                Enemy temp = new EnemyArtillery(x, y, new Texture(Gdx.files.internal("EnemyArtillery.png")), 2, 3, true, 1, 1);
+                Enemy temp = new EnemyArtillery(x, y, 2, 3, true, 1, 1);
                 enemyList.add(temp);
                 board[y][x] = temp;
             } else { //--------end
-                Enemy warrior = new EnemyWarrior(x, y, new Texture(Gdx.files.internal("EnemyWarrior.png")), 3, 3, false, 1, 2);
+                Enemy warrior = new EnemyWarrior(x, y, 3, 3, false, 1, 2);
                 board[y][x] = warrior;
                 enemyList.add(warrior);
             }

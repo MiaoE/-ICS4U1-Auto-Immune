@@ -1,5 +1,6 @@
 package com.summative.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 /**
@@ -23,8 +24,8 @@ class SpawnTile extends Obstacle {
      * @param y     the y coordinate of the object
      * @param enemy the enemy to be spawned
      */
-    SpawnTile(int x, int y, Texture texture, Enemy enemy) {
-        super(x, y, texture);
+    SpawnTile(int x, int y, Enemy enemy) {
+        super(x, y, new Texture(Gdx.files.internal("SpawnTile.png")));
         this.enemy = enemy;
     }
 

@@ -1,5 +1,6 @@
 package com.summative.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 /**
@@ -26,8 +27,8 @@ public class PlayerWarrior extends Player implements Attackable {
      * @param movementRange the movement range
      * @param knockback the knockback
      */
-    PlayerWarrior(int x, int y, Texture texture, int health, double movementRange, boolean attackRange, int attackDamage, int knockback) {
-        super(x, y, texture, health, movementRange, attackRange, knockback);
+    PlayerWarrior(int x, int y, int health, double movementRange, boolean attackRange, int attackDamage, int knockback) {
+        super(x, y, new Texture(Gdx.files.internal("PlayerWarrior.png")), health, movementRange, attackRange, knockback);
         this.attackDamage = attackDamage;
     }
 

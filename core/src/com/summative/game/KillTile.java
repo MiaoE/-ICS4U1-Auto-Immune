@@ -1,5 +1,6 @@
 package com.summative.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 /**
@@ -21,7 +22,7 @@ public class KillTile extends Obstacle{
      * @param x the x coordinate
      * @param y the y coordinate
      */
-    KillTile(int x, int y, Texture texture){
-        super(x, y, texture);
+    KillTile(int x, int y){
+        super(x, y, new Texture(Gdx.files.internal("KillTile.png")));
     }
 }
