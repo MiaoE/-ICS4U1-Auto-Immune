@@ -85,7 +85,6 @@ public class Game extends ApplicationAdapter {
         //background colour. RGB values = [0, 1]
         Gdx.gl.glClearColor(1, 0, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        //drawBackground();
 
         //batch.begin();
         drawBoard(batch);
@@ -221,16 +220,6 @@ public class Game extends ApplicationAdapter {
             batch.end();
         }
         //shapeRenderer.end();
-    }
-
-    public void drawBackground() {
-        ShapeRenderer shapeRenderer = new ShapeRenderer();
-        shapeRenderer.setAutoShapeType(true);
-        shapeRenderer.begin();
-        shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(1, 1, 1, 1);
-        shapeRenderer.rect(0, 0, windowWidth, windowHeight);//, Color.BLUE, Color.CYAN, Color.CYAN, Color.BLUE);
-        shapeRenderer.end();
     }
 
     public static Vector2 isoToCart(Vector2 iso) {
