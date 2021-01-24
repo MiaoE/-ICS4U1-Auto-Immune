@@ -11,9 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
-import java.awt.Dimension;
-import java.awt.Image;
-import java.util.ArrayList;
+import com.summative.game.list.List;
 import java.util.Random;
 
 /**
@@ -39,8 +37,7 @@ public class Game extends ApplicationAdapter {
 
     int windowWidth, windowHeight, size, tileSize, halfHeight;
     SpriteBatch batch;
-    Texture img;
-    Image image;
+    Texture background;
 
     //Game variables
     boolean playerTurn;
@@ -50,10 +47,10 @@ public class Game extends ApplicationAdapter {
     Player unitSelected = null;
 
     //Game Lists
-    ArrayList<Player> playerList;
-    ArrayList<Enemy> enemyList;
-    ArrayList<Vital> vitalList;
-    ArrayList<SpawnTile> spawnList = new ArrayList<>();
+    List<Player> playerList;
+    List<Enemy> enemyList;
+    List<Vital> vitalList;
+    List<SpawnTile> spawnList = new List<>();
     BitmapFont font;
 
     @Override
@@ -61,9 +58,9 @@ public class Game extends ApplicationAdapter {
         windowHeight = Gdx.graphics.getHeight();
         windowWidth = Gdx.graphics.getWidth();
         halfHeight = windowHeight / 2;
-        font = new BitmapFont();//temp
-
+        font = new BitmapFont();
         batch = new SpriteBatch();
+        background = new Texture(Gdx.files.internal("Board2.png"));
 
         size = 8;
         board = new GameObject[size][size];
@@ -77,7 +74,7 @@ public class Game extends ApplicationAdapter {
         generateKillTiles(2);
         enemyList = generateEnemy(3);
         vitalList = generateVitals(3);
-        playerList = new ArrayList<>();
+        playerList = new List<>();
     }
 
     @Override
@@ -86,9 +83,9 @@ public class Game extends ApplicationAdapter {
         windowWidth = Gdx.graphics.getWidth();
         halfHeight = windowHeight / 2;
         //background colour. RGB values = [0, 1]
-        Gdx.gl.glClearColor(1, 1, 1, 1);
+        Gdx.gl.glClearColor(1, 0, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        drawBackground();
+        //drawBackground();
 
         //batch.begin();
         drawBoard(batch);
@@ -109,15 +106,15 @@ public class Game extends ApplicationAdapter {
                 System.out.println("Tile occupied");
             } else {
 
-                if (playerList.size() <2) {
+                if (playerList.size() < 2) {
                     PlayerWarrior unit = new PlayerWarrior(tileX, tileY,  3, 4, false, 2, 1);
                     board[tileY][tileX] = unit;
                     playerList.add(unit);
-                } else if (playerList.size() <4) {
+                } else if (playerList.size() < 3) {
                     PlayerArtillery unit = new PlayerArtillery(tileX, tileY, 2, 3, true, 1, 1);
                     board[tileY][tileX] = unit;
                     playerList.add(unit);
-                } else if (playerList.size() <5) {
+                } else if (playerList.size() < 5) {
                     PlayerSupport unit = new PlayerSupport(tileX, tileY, 2, 5, true, 5);
                     board[tileY][tileX] = unit;
                     playerList.add(unit);
@@ -129,7 +126,6 @@ public class Game extends ApplicationAdapter {
 
             if (playerList.size() == 5) {
                 initialize = false;
-                round++;
             }
         }
         if (!initialize && !playerTurn) {
@@ -139,27 +135,28 @@ public class Game extends ApplicationAdapter {
 
             if (playerList.isEmpty() || vitalList.isEmpty()) {
                 win = false;
-//                batch.begin();
-//                font.draw(batch, "LOSE", 50, 200);
-//                batch.end();
-                Gdx.app.exit();
-            } else {
+                batch.begin();
+                font.draw(batch, "LOSE", 50, 200);
+                batch.end();
+                //Gdx.app.exit();
+            } else if (round >= 5){
+                batch.begin();
+                font.draw(batch, "WIN", 50, 200);
+                batch.end();
+                win = true;
+            }else {
                 enemyAttack(batch);
                 playerTurn = true;
             }
+
         } else if (playerTurn) {
             playerAction(batch);
         }
-
-            /*playerAction(batch);
-            resetPlayers();
-        }*/
     }
 
     @Override
     public void dispose() {
         batch.dispose();
-        img.dispose();
     }
 
     public void drawBoard(SpriteBatch batch) {
@@ -168,14 +165,18 @@ public class Game extends ApplicationAdapter {
         shapeRenderer.setAutoShapeType(true);
         //shapeRenderer.begin();
 
+        batch.begin();
+        batch.draw(background, 50, halfHeight-422, background.getWidth()*4, background.getHeight()*4);
+        batch.end();
+
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 Vector2[] points = {cartToIso(new Vector2(j * tileSize, i * tileSize)),
-                        cartToIso(new Vector2(j * tileSize + tileSize, i * tileSize)),
-                        cartToIso(new Vector2(j * tileSize + tileSize, i * tileSize + tileSize)),
-                        cartToIso(new Vector2(j * tileSize, i * tileSize + tileSize))};
+                      cartToIso(new Vector2(j * tileSize + tileSize, i * tileSize)),
+                      cartToIso(new Vector2(j * tileSize + tileSize, i * tileSize + tileSize)),
+                      cartToIso(new Vector2(j * tileSize, i * tileSize + tileSize))};
                 float[] vertices = {points[0].x + 50, points[0].y + halfHeight, points[1].x + 50, points[1].y + halfHeight,
-                        points[2].x + 50, points[2].y + halfHeight, points[3].x + 50, points[3].y + halfHeight};
+                      points[2].x + 50, points[2].y + halfHeight, points[3].x + 50, points[3].y + halfHeight};
                 shapeRenderer.begin();
                 shapeRenderer.set(ShapeRenderer.ShapeType.Line);
                 shapeRenderer.setColor(0, 0, 0, 1);
@@ -296,7 +297,7 @@ public class Game extends ApplicationAdapter {
      */
     private void enemyAttack(SpriteBatch batch) {
         for (Enemy enemy : enemyList) {
-            ArrayList<Point[]> options = new ArrayList<>();
+            List<Point[]> options = new List<>();
             GameObject closestObject = null;
             for (Player player : playerList) {
                 Point[] cord = enemyAttackable(player, enemy);
@@ -525,15 +526,15 @@ public class Game extends ApplicationAdapter {
                     board[attack.getY()][attack.getX()] = null;
                     System.out.println("Object at " + object.getCoordinate().toString() + " is obliterated");
                     if (object instanceof Player) {
-                        playerList.remove(object);
+                        playerList.remove(((Player) object));
                     } else if (object instanceof Enemy) {
-                        enemyList.remove(object);
-                        if (enemyList.indexOf(object) < i) {
+                        enemyList.remove(((Enemy) object));
+                        if (enemyList.indexOf(((Enemy) object)) < i) {
                             i = i - 1;
                         }
                         bound -= 1;
                     } else if (object instanceof Vital) {
-                        vitalList.remove(object);
+                        vitalList.remove(((Vital) object));
                     }
                 }
                 if (enemy instanceof EnemyDestructor) {
@@ -658,6 +659,11 @@ public class Game extends ApplicationAdapter {
             }
         }
 
+        if(player.getX() == x && player.getY() == y){
+            System.out.println("you can't attack yourself");
+            return;
+        }
+
         System.out.println("Player at " + player.getCoordinate().toString() + " attacks " + x + " " + y);
         GameObject target = board[y][x];
         if (target instanceof Damageable && player instanceof Attackable) {
@@ -667,11 +673,11 @@ public class Game extends ApplicationAdapter {
                 board[target.getY()][target.getX()] = null;
                 System.out.println("Object at " + target.getCoordinate().toString() + " is destroyed or killed");
                 if (target instanceof Enemy) {//removes enemy from enemy list
-                    enemyList.remove(target);
+                    enemyList.remove(((Enemy) target));
                 } else if (target instanceof Player) {
-                    playerList.remove(target);
+                    playerList.remove(((Player) target));
                 } else if (target instanceof Vital) {
-                    vitalList.remove(target);
+                    vitalList.remove(((Vital) target));
                 }
             } else if (target instanceof Movable) {
                 takeKnockback(player, target);
@@ -704,7 +710,7 @@ public class Game extends ApplicationAdapter {
         }
 
         if(board[y][x] instanceof SpawnTile) {
-            spawnList.remove(board[y][x]);
+            spawnList.remove(((SpawnTile) board[y][x]));
         }
         board[unit.getY()][unit.getX()] = null;
         board[y][x] = unit;
@@ -785,9 +791,9 @@ public class Game extends ApplicationAdapter {
                 }
             } else if (board[y][x] instanceof KillTile) {
                 if (object instanceof Enemy) {
-                    enemyList.remove(object);//remove object from list
+                    enemyList.remove(((Enemy) object));//remove object from list
                 } else if (object instanceof Player) {
-                    playerList.remove(object);//remove object from list
+                    playerList.remove(((Player) object));//remove object from list
                 }
                 board[object.getY()][object.getX()] = null;//remove object from board
                 System.out.println("object at " + attackeeX + " " + attackeeY + " is killed by kill tile at " + x + " " + y);
@@ -795,7 +801,7 @@ public class Game extends ApplicationAdapter {
             } else if(board[y][x] instanceof SpawnTile) {
                 if(i == player.getKnockback()) {//does not go back
                     board[object.getY()][object.getX()] = null;
-                    spawnList.remove(board[y][x]);
+                    spawnList.remove(((SpawnTile) board[y][x]));
                     board[y][x] = object;
                     ((Movable) object).move(x, y);
                 } else {//still goes back
@@ -810,12 +816,12 @@ public class Game extends ApplicationAdapter {
 
                     if (nextX >= size || nextY >= size || nextY < 0 || nextX < 0) {//if out of bound, the enemy stays at the spawn tile location
                         board[object.getY()][object.getX()] = null;
-                        spawnList.remove(board[y][x]);
+                        spawnList.remove(((SpawnTile) board[y][x]));
                         board[y][x] = object;
                         ((Movable) object).move(x, y);
                     } else if (board[nextY][nextX] != null && !(board[nextY][nextX] instanceof KillTile)) {//if next tile has object that's not kill
                         board[object.getY()][object.getX()] = null;
-                        spawnList.remove(board[y][x]);
+                        spawnList.remove(((SpawnTile) board[y][x]));
                         board[y][x] = object;
                         ((Movable) object).move(x, y);
                     }
@@ -882,10 +888,10 @@ public class Game extends ApplicationAdapter {
         }
     }
 
-    private ArrayList<Vital> generateVitals(int vitalNum) {
+    private List<Vital> generateVitals(int vitalNum) {
         Random random = new Random();
         int x, y;
-        ArrayList<Vital> vitalList = new ArrayList<>();
+        List<Vital> vitalList = new List<>();
         for (int i = 0; i < vitalNum; i++) {
             do {
                 x = random.nextInt(8);
@@ -901,15 +907,15 @@ public class Game extends ApplicationAdapter {
     /**
      * generateEnemy
      * Adds {@code Enemy} to the game board. Additionally,
-     * the method creates and returns an ArrayList containing the enemies generated.
+     * the method creates and returns an List containing the enemies generated.
      *
      * @param enemyNum the number of enemies to be created
-     * @return the ArrayList of enemies
+     * @return the List of enemies
      * @see Enemy
      */
-    private ArrayList<Enemy> generateEnemy(int enemyNum) {
+    private List<Enemy> generateEnemy(int enemyNum) {
         Random random = new Random();
-        ArrayList<Enemy> enemyList = new ArrayList<>();
+        List<Enemy> enemyList = new List<>();
         int x, y;
         for (int i = 0; i < enemyNum; i++) {
             do {

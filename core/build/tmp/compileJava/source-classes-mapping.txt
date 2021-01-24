@@ -2,8 +2,8 @@ com/summative/game/Movable.java
  com.summative.game.Movable
 com/summative/game/Point.java
  com.summative.game.Point
-com/summative/game/Main.java
- com.summative.game.Main
+com/summative/game/EnemyWarrior.java
+ com.summative.game.EnemyWarrior
 com/summative/game/Damageable.java
  com.summative.game.Damageable
 com/summative/game/Attackable.java
@@ -44,8 +44,6 @@ com/summative/game/KillTile.java
  com.summative.game.KillTile
 com/summative/game/Obstruction.java
  com.summative.game.Obstruction
-com/summative/game/EnemyWarrior.java
- com.summative.game.EnemyWarrior
 com/summative/game/Game.java
  com.summative.game.Game
 com/summative/game/MenuScreen.java
