@@ -70,6 +70,7 @@ public class TitleScreen extends ScreenAdapter {
                           Gdx.input.getY() <= Gdx.graphics.getHeight() - buttonsY+30 && Gdx.input.getY() >= Gdx.graphics.getHeight() - buttonsY+30 - 90) {
                         //System.out.println("Quit");
                         game.dispose();
+                        System.exit(0);
                     }
                 }
                 return false;
