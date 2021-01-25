@@ -49,7 +49,6 @@ public class GameScreen extends ScreenAdapter {
     //Game variables
     boolean playerTurn = false;
     boolean initialize = true;
-    boolean win;
     int round = 0;
     boolean modeAttack = false;
     Player unitSelected = null;
@@ -176,17 +175,16 @@ public class GameScreen extends ScreenAdapter {
             }
 
             if (playerList.isEmpty() || vitalList.isEmpty()) {
-                win = false;
                 game.batch.begin();
                 game.font.draw(game.batch, "LOSE", 50, 200);
                 game.batch.end();
-                game.setScreen(new EndScreen(game, win, killed, vitalList.size(), playerList.size()));
+                game.setScreen(new EndScreen(game, false, killed, vitalList.size(), playerList.size()));
                 //Gdx.app.exit();
             } else if (round > 5) {
                 game.batch.begin();
                 game.font.draw(game.batch, "WIN", 50, 200);
                 game.batch.end();
-                game.setScreen(new EndScreen(game, win, killed, vitalList.size(), playerList.size()));
+                game.setScreen(new EndScreen(game, true, killed, vitalList.size(), playerList.size()));
 
             } else {
                 int index = (int) ((System.currentTimeMillis() - moveElapsedStart) / 1000);
